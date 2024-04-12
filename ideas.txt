@@ -1,0 +1,10 @@
+Summoning - Turn based strategy
+It spreads, Decay, collapse - reach a goal on a grid while avoiding probabilisic corruption (king moves avoiding knight moves?)
+Recycle, strange machine - spacechem with irrational numbers and without the layout questions
+Strength in numbers, you don't play as the main char - choose stats for a character which fights without much input from you
+  - get a new random char every time (different weapons?) so optimal build isn't the same every time)
+    - pick up gear as you go
+  - int makes player pick better options
+  - spd detrimental
+  - 
+Fishing - Phishing, finding K-trees ???
