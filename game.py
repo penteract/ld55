@@ -202,7 +202,7 @@ class Demon():
     def try_summon(self, other):
         """enact a Summon, unless the actor is not older than someone else trying to summon the same demon in the same tick"""
         s = other.summoner
-        if s is None or s[0].born > self.born:
+        if s is None or s[0] is None or s[0].born > self.born:
             other.summoner = [self, self.fight, self.side]
             other.set_target(self)
             if s is None:
@@ -257,6 +257,7 @@ class Demon():
                         # TODO: ending the fight in the middle of the fight could mess with pending summons. test what happens (get summoned into an empty fight?)
             else:
                 raise Exception("Bad Plan")
+
     def create_plan(self):
         abstract
 
