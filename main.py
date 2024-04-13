@@ -13,7 +13,7 @@ TICK_TIME = 10
 class Handler(SimpleHTTPRequestHandler):
     """subclassing seems the simplest way to send files"""
 
-    def send_string(self, s, hs={}):
+    def send_string(self, s, hs={"Content-Type":"text/plain; charset=utf-8"}):
         self.send_response(200, "okay")
         b = bytes(s, "utf-8")
         self.send_header("Content-Length", str(len(b)))
@@ -91,7 +91,7 @@ class Handler(SimpleHTTPRequestHandler):
             else:
                 dat = game.build_data(game.Demon.demons[name])
                 headers = {}
-                headers["Content-Type"] = "application/json"
+                headers["Content-Type"] = "application/json; charset=utf-8"
                 dat["nexttick"] = (last_tick - time.time() + TICK_TIME + 0.1)
                 self.send_string(json.dumps(dat), headers)
         else:
