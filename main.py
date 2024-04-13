@@ -19,6 +19,12 @@ class Handler(SimpleHTTPRequestHandler):
         self.end_headers()
         self.flush_headers()
         self.wfile.write(b)
+    def empty_ok(self,hs={}):
+        self.send_response(200,"okay")
+        for k,v in hs.items():
+            self.send_header(k,v)
+        self.end_headers()
+        self.flush_headers()
 
     def do_PUT(self):
         print("starting repl, since noone actually uses put. Remember to remove this in final version (DoS issue, not risk of server compromise)")
@@ -26,6 +32,40 @@ class Handler(SimpleHTTPRequestHandler):
             print(">>",end=" ")
             print(eval(input()))
         #self.send_response(200,"hello")
+    def do_POST(self):
+        url = urlparse(self.path)
+        if url.path=="/newDemon":
+            send_string(game.Player().name+"\n"+game.names.randname())
+        elif url.path=="/setPlan":
+            qs = parse_qs(urlparse(self.path).query)
+            if ("name" not in qs) or len(qs["name"])!=1:
+                self.send_error(400)
+                return
+            elif not (d := game.Demon.demons.get(qs["name"][0])) :
+                print("Couldn't find ",name,game.Demon.demons)
+                self.send_error(400)
+                return
+            if "tick" not in qs or len(qs["tick"])!=1 or qs["tick"][0]!=str(game.time):
+                print(game.time)
+                self.send_error(400,"Wrong tick")
+                return
+            if "plan" not in qs or len(qs["plan"])!=1:
+                self.send_error(400,"No Plan")
+                return
+            plan = qs["plan"][0]
+            if plan not in [["wait", "look","answer"],["fire","request", "summon","request2","answer"]][bool(d.fight)]:
+                self.send_error(400,"bad plan")
+                return
+            elif plan in ["answer","request", "summon"]:
+                if "target" not in qs or len(qs["target"])!=1:
+                    send_error(400,"No Target")
+                    return
+                d.target = qs["target"][0]
+            d.plan=plan
+            self.empty_ok()
+        else:
+            self.send_error(400)
+
     def do_GET(self):
         global last_tick
         t = time.time()
@@ -96,8 +136,8 @@ type fight = [side,side]
 }
 
 POST newDemon
-response: name
+response: name\ntruename
 
-POST setPlan?tick= &plan= &target= (request unknown)
+POST setPlan?name= &truename= &tick= &plan= &target= (request unknown)
 
 """

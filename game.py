@@ -348,7 +348,8 @@ class AI(Demon):
 
 
 class Player(Demon):
-    pass
+    def create_plan(self):
+        self.plan="fire" if self.fight else "wait"
 
 MIN_DEMONS=100
 def tick():
