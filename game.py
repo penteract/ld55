@@ -1,5 +1,6 @@
 import names
 from collections import defaultdict
+from random import random,choice
 # Game state is a global variable.
 # This is reasonable for a game jam
 
@@ -283,9 +284,9 @@ class AI(Demon):
             self.plan_target = choice(targets)
             return
 
-        if random < 0.5:
+        if random() < 0.5:
             self.plan = "request"
-            self.plan_target = choice(game.Demon.demons)
+            self.plan_target = choice(Demon.demons)
             return
 
         self.plan = "fire"
