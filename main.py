@@ -1,5 +1,6 @@
 from http.server import BaseHTTPRequestHandler,HTTPServer
 #from http.server import *
+from urllib.parse import urlparse, parse_qs
 import game
 
 class Handler(BaseHTTPRequestHandler):
@@ -18,6 +19,11 @@ class Handler(BaseHTTPRequestHandler):
             print(eval(input()))
         #self.send_response(200,"hello")
     def do_GET(self):
+        url = urlparse(self.path)
+        if url.path in ["/index.html","/"]:
+            #TODO:send file
+            pass
+        parse_qsurlparse(self.path).query
         self.send_string("hello")
 
 
@@ -43,11 +49,13 @@ type fight = [side,side]
 {fight: null | fight,
  requests: [[name,fight]],
  debts:[string]
+ nexttick:number /* number of seconds until next tick*/
+ tick: number
 }
 
 POST newDemon
 response: name
 
-POST setPlan?plan= &target= (request unknown)
+POST setPlan?tick= &plan= &target= (request unknown)
 
 """
