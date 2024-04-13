@@ -1,6 +1,7 @@
+import traceback
 import names
 from collections import defaultdict
-from random import random,choice
+from random import random, choice
 # Game state is a global variable.
 # This is reasonable for a game jam
 
@@ -50,30 +51,40 @@ class FightSide:
 
     def __bool__(self):
         return not self.empty()
+
     def __str__(self):
         return "[*"+",".join(d.name for d in self)+"*]"
+
     def serialize(self):
         return [d.serialize() for d in self]
 
+
 class dset():
     """dictionary pretending to be a set to make it deterministic"""
+
     def __init__(self):
-        self.d={}
-    def add(self,x):
-        self.d[x]=None
-    def remove(self,x):
+        self.d = {}
+
+    def add(self, x):
+        self.d[x] = None
+
+    def remove(self, x):
         self.d.pop(x)
+
     def pop(self):
-        k,v=self.d.popitem()
+        k, v = self.d.popitem()
         return k
+
     def __bool__(self):
         return bool(self.d)
+
     def __iter__(self):
         return iter(self.d)
 
 
 class Fight:
     fights = dset()
+
     def __init__(self):
         self.side0 = FightSide()
         self.side1 = FightSide()
@@ -91,8 +102,9 @@ class Fight:
 
     def opp(self, idx):
         return self[1-idx]
+
     def serialize(self):
-        return [side.serialize() for side in [self.side0,self.side1]]
+        return [side.serialize() for side in [self.side0, self.side1]]
 
     def end(self):
         print("Fight ended!", [d.name for d in self.side0], [
@@ -100,24 +112,26 @@ class Fight:
         for side in [self.side0, self.side1]:
             for d in list(side):
                 d.remove()
-                if not d.acted: d.plan = "wait"
-                #(Toby: knowing the old plan might be helpful for UI)
+                if not d.acted:
+                    d.plan = "wait"
+                # (Toby: knowing the old plan might be helpful for UI)
             assert side.empty()
-        print("removing",self)
+        print("removing", self)
         Fight.fights.remove(self)
+
     def __str__(self):
         return repr(self)+str(self.side0)+"vs"+str(self.side1)
 
 
-import traceback
 class Demon():
     demons = {}
     summons = dset()
     looking = dset()
+
     def serialize(self):
         res = {}
-        for k in ["name","power","score","health","plan"]:
-            res[k]=getattr(self,k)
+        for k in ["name", "power", "score", "health", "plan"]:
+            res[k] = getattr(self, k)
         return res
 
     def __init__(self):
@@ -161,7 +175,7 @@ class Demon():
         self.requests = []
         self.targeting = dset()  # Demons that are about to appear in front of this one
         self.summoner = None
-        self.acted=False
+        self.acted = False
 
     def remove(self):
         """remove self from the linked list that is its fight"""
@@ -251,8 +265,6 @@ class Demon():
             if s is None:
                 Demon.summons.add(other)
 
-
-
     def answer(self):
         assert self.plan_target in self.last_requests
         d = Demon.demons.get(self.plan_target)
@@ -262,8 +274,9 @@ class Demon():
 
     def act(self):
         """Perform a planned action"""
-        print(self," plans ",self.plan, self.plan_target if self.plan in ["request","answer","summon"] else "")
-        self.acted=True
+        print(self, " plans ", self.plan, self.plan_target if self.plan in [
+              "request", "answer", "summon"] else "")
+        self.acted = True
         if self.fight is None:
             if self.plan == "wait":
                 pass
@@ -272,7 +285,7 @@ class Demon():
             elif self.plan == "answer":
                 self.answer()
             else:
-                raise Exception("Bad Plan: ",self.plan)
+                raise Exception("Bad Plan: ", self.plan)
         else:
             if self.plan == "fire":
                 if self.fight is not None:
@@ -309,8 +322,10 @@ class Demon():
 
     def create_plan(self):
         abstract
+
     def __str__(self):
         return "The Demon "+self.name
+
     def __repr__(self):
         return "<"+self.__class__.__name__+" "+self.name+">"
 
@@ -349,9 +364,12 @@ class AI(Demon):
 
 class Player(Demon):
     def create_plan(self):
-        self.plan="fire" if self.fight else "wait"
+        self.plan = "fire" if self.fight else "wait"
 
-MIN_DEMONS=100
+
+MIN_DEMONS = 100
+
+
 def tick():
     global time
     time += 1
@@ -374,11 +392,13 @@ def tick():
     # handle summons
     for summoned in Demon.summons:
         if not summoned.dead and summoned.summoner[1] in Fight.fights:
-            #Toby: Consider making a priority queue of summonings
-            print(summoned,"summoned by",summoned.summoner[0],"in fight",repr(summoned.summoner[1]),summoned.summoner[1])
+            # Toby: Consider making a priority queue of summonings
+            print(summoned, "summoned by", summoned.summoner[0], "in fight", repr(
+                summoned.summoner[1]), summoned.summoner[1])
             if summoned.fight is not None:
                 summoned.remove()
-            print(summoned,"summoned by",summoned.summoner[0],"in fight",repr(summoned.summoner[1]))
+            print(summoned, "summoned by",
+                  summoned.summoner[0], "in fight", repr(summoned.summoner[1]))
             summoned.insert_after(*summoned.summoner)
     Demon.summons = []
 
@@ -400,19 +420,19 @@ def tick():
 
 
 def create_fight(side0, side1):
-    print(side0,"starts a fight against",side1)
+    print(side0, "starts a fight against", side1)
     f = Fight()
     for d in [side0]:
         d.insert_after(None, f, 0)
     for d in [side1]:
         d.insert_after(None, f, 1)
-    #print("Created fight!", [d.name for d in side0], [d.name for d in side1])
+    # print("Created fight!", [d.name for d in side0], [d.name for d in side1])
     return f
 
 
 def find_matchups():
     looking = [d for d in Demon.looking if not d.fight]
-    looking.sort(key=lambda d:d.name)
+    looking.sort(key=lambda d: d.name)
     Demon.looking = set()
 
     # temoprary - just pairs up demons looking demons as 1v1s
@@ -432,7 +452,7 @@ def find_matchups():
 
 def init(num_demons=100):
     global MIN_DEMONS
-    MIN_DEMONS=num_demons
+    MIN_DEMONS = num_demons
     for i in range(num_demons):
         AI()
 
@@ -458,15 +478,14 @@ def build_data(d):
     }"""
     result = d.serialize()
     if d.fight is None:
-        result["fight"]=None
+        result["fight"] = None
     else:
-        result["fight"]=d.fight.serialize()
+        result["fight"] = d.fight.serialize()
     result["requests"] = []
     for name in d.requests:
         if (req := Demon.demons.get(name)):
-            result["requests"].append((name,req.fight.serialize()))
-    result["owed"] = [(k,c) for k,c in d.owed.items() if c>=1]
-    result["changedFight"]=False
-    result["tick"]=time
+            result["requests"].append((name, req.fight.serialize()))
+    result["owed"] = [(k, c) for k, c in d.owed.items() if c >= 1]
+    result["changedFight"] = False
+    result["tick"] = time
     return result
-

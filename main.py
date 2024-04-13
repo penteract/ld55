@@ -1,67 +1,72 @@
-from http.server import SimpleHTTPRequestHandler,HTTPServer
-#from http.server import *
+from http.server import SimpleHTTPRequestHandler, HTTPServer
+# from http.server import *
 from urllib.parse import urlparse, parse_qs
 import game
 import time
 import json
 
-STATIC_FILES=["/index.html","/","/render.js"]
+STATIC_FILES = ["/index.html", "/", "/render.js"]
 
 TICK_TIME = 10
+
+
 class Handler(SimpleHTTPRequestHandler):
     """subclassing seems the simplest way to send files"""
-    def send_string(self,s,hs={}):
-        self.send_response(200,"okay")
-        b = bytes(s,"utf-8")
-        self.send_header("Content-Length",str(len(b)))
-        for k,v in hs.items():
-            self.send_header(k,v)
+
+    def send_string(self, s, hs={}):
+        self.send_response(200, "okay")
+        b = bytes(s, "utf-8")
+        self.send_header("Content-Length", str(len(b)))
+        for k, v in hs.items():
+            self.send_header(k, v)
         self.end_headers()
         self.flush_headers()
         self.wfile.write(b)
-    def empty_ok(self,hs={}):
-        self.send_response(200,"okay")
-        for k,v in hs.items():
-            self.send_header(k,v)
+
+    def empty_ok(self, hs={}):
+        self.send_response(200, "okay")
+        for k, v in hs.items():
+            self.send_header(k, v)
         self.end_headers()
         self.flush_headers()
 
     def do_PUT(self):
         print("starting repl, since noone actually uses put. Remember to remove this in final version (DoS issue, not risk of server compromise)")
         while True:
-            print(">>",end=" ")
+            print(">>", end=" ")
             print(eval(input()))
-        #self.send_response(200,"hello")
+        # self.send_response(200,"hello")
+
     def do_POST(self):
         url = urlparse(self.path)
-        if url.path=="/newDemon":
-            send_string(game.Player().name+"\n"+game.names.randname())
-        elif url.path=="/setPlan":
+        if url.path == "/newDemon":
+            self.send_string(game.Player().name+"\n"+game.names.randname())
+        elif url.path == "/setPlan":
             qs = parse_qs(urlparse(self.path).query)
-            if ("name" not in qs) or len(qs["name"])!=1:
+            if ("name" not in qs) or len(qs["name"]) != 1:
                 self.send_error(400)
                 return
-            elif not (d := game.Demon.demons.get(qs["name"][0])) :
-                print("Couldn't find ",name,game.Demon.demons)
+            elif not (d := game.Demon.demons.get(name := qs["name"][0])):
+                print("Couldn't find ", name, game.Demon.demons)
                 self.send_error(400)
                 return
-            if "tick" not in qs or len(qs["tick"])!=1 or qs["tick"][0]!=str(game.time):
+            if "tick" not in qs or len(qs["tick"]) != 1 or qs["tick"][0] != str(game.time):
                 print(game.time)
-                self.send_error(400,"Wrong tick")
+                self.send_error(400, "Wrong tick")
                 return
-            if "plan" not in qs or len(qs["plan"])!=1:
-                self.send_error(400,"No Plan")
+            if "plan" not in qs or len(qs["plan"]) != 1:
+                self.send_error(400, "No Plan")
                 return
             plan = qs["plan"][0]
-            if plan not in [["wait", "look","answer"],["fire","request", "summon","request2","answer"]][bool(d.fight)]:
-                self.send_error(400,"bad plan")
+            if plan not in [["wait", "look", "answer"], ["fire", "request", "summon", "request2", "answer"]][bool(d.fight)]:
+                self.send_error(400, "bad plan")
                 return
-            elif plan in ["answer","request", "summon"]:
-                if "target" not in qs or len(qs["target"])!=1:
-                    send_error(400,"No Target")
+            elif plan in ["answer", "request", "summon"]:
+                if "target" not in qs or len(qs["target"]) != 1:
+                    self.send_error(400, "No Target")
                     return
                 d.target = qs["target"][0]
-            d.plan=plan
+            d.plan = plan
             self.empty_ok()
         else:
             self.send_error(400)
@@ -69,45 +74,44 @@ class Handler(SimpleHTTPRequestHandler):
     def do_GET(self):
         global last_tick
         t = time.time()
-        if t>last_tick+TICK_TIME:
+        if t > last_tick+TICK_TIME:
             game.tick()
-            last_tick=t
+            last_tick = t
         url = urlparse(self.path)
         if url.path in STATIC_FILES:
             return super().do_GET()
-        elif url.path=="/update":
+        elif url.path == "/update":
             qs = parse_qs(urlparse(self.path).query)
-            if ("name" not in qs) or len(qs["name"])!=1:
+            if ("name" not in qs) or len(qs["name"]) != 1:
                 self.send_error(400)
                 print(qs)
-            elif (name:=qs["name"][0]) not in game.Demon.demons:
-                print(name,game.Demon.demons)
+            elif (name := qs["name"][0]) not in game.Demon.demons:
+                print(name, game.Demon.demons)
                 self.send_error(400)
             else:
                 dat = game.build_data(game.Demon.demons[name])
-                headers={}
-                headers["Content-Type"]="application/json"
+                headers = {}
+                headers["Content-Type"] = "application/json"
                 dat["nexttick"] = (last_tick - time.time() + TICK_TIME + 0.1)
-                self.send_string(json.dumps(dat) , headers)
+                self.send_string(json.dumps(dat), headers)
         else:
             self.send_error(404)
+
     def do_HEAD(self):
         url = urlparse(self.path)
         if url.path in STATIC_FILES:
             return super().do_HEAD()
-        elif url.path=="/update":
+        elif url.path == "/update":
             self.send_error(404)
         else:
             self.send_error(404)
 
 
-
-
-if __name__=="__main__":
+if __name__ == "__main__":
     game.init(10)
-    with HTTPServer(("localhost",8080),Handler) as httpd:
+    with HTTPServer(("localhost", 8080), Handler) as httpd:
         global last_tick
-        last_tick=time.time()
+        last_tick = time.time()
         httpd.serve_forever()
 
 """API:
