@@ -53,9 +53,24 @@ class FightSide:
     def __str__(self):
         return "[*"+",".join(d.name for d in self)+"*]"
 
+class dset():
+    """dictionary pretending to be a set to make it deterministic"""
+    def __init__(self):
+        self.d={}
+    def add(self,x):
+        self.d[x]=None
+    def remove(self,x):
+        self.d.pop(x)
+    def pop(self):
+        k,v=self.d.popitem()
+        return k
+    def __bool__(self):
+        return bool(self.d)
+    def __iter__(self):
+        return iter(self.d)
 
 class Fight:
-    fights = set()
+    fights = dset()
     def __init__(self):
         self.side0 = FightSide()
         self.side1 = FightSide()
@@ -86,13 +101,14 @@ class Fight:
         print("removing",self)
         Fight.fights.remove(self)
     def __str__(self):
-        return str(self.side0)+"vs"+str(self.side1)
+        return repr(self)+str(self.side0)+"vs"+str(self.side1)
 
 
+import traceback
 class Demon():
     demons = {}
-    summons = []
-    looking = set()
+    summons = dset()
+    looking = dset()
 
     def __init__(self):
         # Fixed data
@@ -131,7 +147,7 @@ class Demon():
         self.init_tick()
 
     def init_tick(self):
-        self.targeting = set()  # Demons that are about to appear in front of this one
+        self.targeting = dset()  # Demons that are about to appear in front of this one
         self.summoner = None
         self.acted=False
 
@@ -160,13 +176,8 @@ class Demon():
             self.next = fight[side].back
             fight[side].back = self
         else:
-            try:
-                assert summoner.fight == fight
-                assert summoner.side == side
-            except Exception:
-                while True:
-                    print(">>",end=" ")
-                    print(eval(input()))
+            assert summoner.fight == fight
+            assert summoner.side == side
             self.next = summoner.next
             summoner.next = self
         self.prev = summoner
@@ -180,12 +191,7 @@ class Demon():
     def set_target(self, other):
         """change the target location of a summoning"""
         if other is not None:
-            try:
-                assert other.fight is self.summoner[1]
-            except Exception:
-                while True:
-                    print(">>",end=" ")
-                    print(eval(input()))
+            assert other.fight is self.summoner[1]
             other.targeting.add(self)
         self.summoner[0] = other
 
@@ -225,10 +231,14 @@ class Demon():
         """enact a Summon, unless the actor is not older than someone else trying to summon the same demon in the same tick"""
         s = other.summoner
         if s is None or s[0] is None or s[0].born > self.born:
+            if s is not None and s[0] is not None:
+                s[0].targeting.remove(other)
             other.summoner = [self, self.fight, self.side]
             other.set_target(self)
             if s is None:
                 Demon.summons.add(other)
+
+
 
     def answer(self):
         assert self.plan_target in self.requests
@@ -239,6 +249,7 @@ class Demon():
 
     def act(self):
         """Perform a planned action"""
+        print(self," plans ",self.plan, self.plan_target if self.plan in ["request","answer","summon"] else "")
         self.acted=True
         if self.fight is None:
             if self.plan == "wait":
@@ -330,8 +341,11 @@ MIN_DEMONS=100
 def tick():
     global time
     time += 1
-    Demon.summons = set()
-    Demon.looking = set()
+    Demon.summons = dset()
+    Demon.looking = dset()
+
+    for fight in list(Fight.fights):
+        print(fight)
 
     print("Step", time)
     for d in Demon.demons.values():
@@ -347,6 +361,7 @@ def tick():
     for summoned in Demon.summons:
         if not summoned.dead and summoned.summoner[1] in Fight.fights:
             #Toby: Consider making a priority queue of summonings
+            print(summoned,"summoned by",summoned.summoner[0],"in fight",repr(summoned.summoner[1]),summoned.summoner[1])
             if summoned.fight is not None:
                 summoned.remove()
             print(summoned,"summoned by",summoned.summoner[0],"in fight",repr(summoned.summoner[1]))
@@ -383,6 +398,7 @@ def create_fight(side0, side1):
 
 def find_matchups():
     looking = [d for d in Demon.looking if not d.fight]
+    looking.sort(key=lambda d:d.name)
     Demon.looking = set()
 
     # temoprary - just pairs up demons looking demons as 1v1s

@@ -1,7 +1,6 @@
 import sys
 import game
-from random import random, choice
-
+from random import random, choice, seed
 
 class TestAI(game.AI):
     def create_plan(self):
@@ -52,6 +51,7 @@ if __name__=="__main__":
         except e:
             print(usage,file=sys.stderr)
             raise e
+    seed(100)
     game.init(num_demons)
 
 
