@@ -65,7 +65,7 @@ class Handler(SimpleHTTPRequestHandler):
                 if "target" not in qs or len(qs["target"]) != 1:
                     self.send_error(400, "No Target")
                     return
-                d.target = qs["target"][0]
+                d.plan_target = qs["target"][0]
             d.plan = plan
             self.empty_ok()
         else:
