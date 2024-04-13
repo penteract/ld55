@@ -35,13 +35,18 @@ Summoning - Turn based strategy
  - - disconnecting is basically equiv to death - reward to opponents? is "making the average demon stronger" much of a deterent - you could be fighting with them as well as against them
  - - being in a strictly worse off position currently than at the start is difficult to deter disconnects (e.g. owe debts, not owed any)
  - - if you can get improvements outside of contracts such as maxhp there's incentive not to lose that 
+ - - can also be incentive not to lose knowledge of names, as that can help summon an enemy to your side 
+ - - older demons have a slight advantage due to acting first, incentive not to lose that advantage
+ - - score points for being in a winning fight
 
  - incentive to concede a losing fight? which incurrs debt to enemy leader (back)
  - - ofc there's not dying; incentives for that are similar to incentives for not disconnecting
  - - if not yourself in immediete danger of death? could want to preserve lives of teammates if they owe you
  - - could deny enemy reward for killing 
+ - - if someone could get summoned away you could be in more danger than it looks
  - - loyalty reward for saving life of teammates? probably don't want to incentivies conceding even or just slightly behind fights or fights that have just started; so full contract maybe too much. fractional contracts? if AIs, more likely to accept your requests?
- - - everyone heals (to full?) when fight ends? through concession, killing last enemy, or last enemy being summoned away
+ - - everyone heals (to full?) when fight ends? through concession, killing last enemy, or last enemy being summoned away. maybe losing side gets a bit less.
+
 
  - incentive to make request summons instead of calling in a debt? (of someone else, or of them)
  - - it doesn't use up your contract ofc
@@ -49,14 +54,43 @@ Summoning - Turn based strategy
  - - perhaps could offer more than a contract to summon you? more than one such contract, or other contracts you have. fractional contracts? offer hp? (lose some hp to heal them)
  - - potential to trick someone by offering a contract for someone you know to be dead but they may not?
  - - is offering more stuff to make them more likely to accept actually a good strategic decision in enough cases
- - - requests also currently take 2 turns to process
+ - - consolation for failing a request? (temp armour for an attack next turn?)
 
  - incentive to accept requests?
  - - ofc you gain a contract (+more if you can be offered more)
- - - being in a winning fight is good. (why? due to incentive for killing?) however might not want to be in a riskier position (at front) even when your side is better off.
+ - - being in a winning fight is good. (why? due to incentive for killing?) however might not want to be in a riskier position (at front) even when your side is better off. 
  - - does this make those at front more likely to call in debts or attack if they have none (since requests less likely not be accepted) wheras those at back prefer more often to request 
  - - heal 1hp upon being summoned? (by request or by contract)
+ - - - though should be careful of too much healing - if it happens more often than attacks then no progress is made
+ 
+ - currently actions are resolved, setting up summons, then summons are resolved
+ - what if summons were resolved immedietely? 
+ - main difference would be a summon can happen before an attack resolves 
+ - currently when you attack you know exactly who it will hit. and when accepting a summon you know you could receive attacks from old position but not new position
+ - could have concession prioritised (check for concession before other actions) and then cancel any attacks that happen in that fight. and summons? 
+ - if it were not prioritised, could have a situation where some attacks and summons go through in the fight, then the fight ends by concession (then further attacks/summons canceled?). leads to "wasted" contracts + some damage (perhaps kills) go through. extra risk to not conceding if you know some enemies are older and thus can attack before you. 
+ - if summons could happen immediately you could be summoned away before your concession goes through
 
+ - should fights start as 1v1, or should you start with some allies?
+ - when a fight ends do you keep the same team for the next fight? if so need to ensure next fight is somewhat balanced (in number / perhaps power)
+
+ - knowledge system?
+ - - do you know your teammates names?
+ - - do you know your enemies names? (this makes them easier to summon - it seems correct for them to accept a request to join a better side) - perhaps not by default
+ - - if you are summoned by someone you know their name
+ - - same true if *requested*?
+ - - you know some random names at the start, can discover more by request summon unknown
+ - - discovering names has benefit as it could be an enemy or future enemy that it's beneficial to request summon
+ - - if a teammate summons someone, do you learn their name? (maybe you hear it)
+ - - what about for enemies?
+ - - if summoned into a fight, do you learn names of your new teammates?
+ - - does knowing name imply knowing appearence (could be infered by appearence rng seeded from names) - i.e. knowing of the existence of a name implies knowing that a particular demon on your or enemy side is in fact the one with that name?
+ - - - simpler that it does - server can just track client's known names, and when sending gamestate just censor unknown names 
+ - - known names can have last known hp / power level (from last time you were in a fight with or against them)
+ - - might not know if they're dead, making a summon fail 
+ - - if a contracted summon fails due to this you should know they're dead. if a requested summon fails due to this, do you learn they're dead or perhaps they declined?
+ - - server tracks client's knowledge (can't use known names from a previous session, you must learn them)
+ - - new demon can share name from dead demon - can you try to summon them? 
 
 ## Actual plan
 
