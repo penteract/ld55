@@ -52,6 +52,8 @@ class FightSide:
         return not self.empty()
     def __str__(self):
         return "[*"+",".join(d.name for d in self)+"*]"
+    def serialize(self):
+        return [d.serialize() for d in self]
 
 class dset():
     """dictionary pretending to be a set to make it deterministic"""
@@ -68,6 +70,7 @@ class dset():
         return bool(self.d)
     def __iter__(self):
         return iter(self.d)
+
 
 class Fight:
     fights = dset()
@@ -88,6 +91,8 @@ class Fight:
 
     def opp(self, idx):
         return self[1-idx]
+    def serialize(self):
+        return [side.serialize() for side in [self.side0,self.side1]]
 
     def end(self):
         print("Fight ended!", [d.name for d in self.side0], [
@@ -152,6 +157,8 @@ class Demon():
         self.init_tick()
 
     def init_tick(self):
+        self.last_requests = self.requests
+        self.requests = []
         self.targeting = dset()  # Demons that are about to appear in front of this one
         self.summoner = None
         self.acted=False
@@ -212,6 +219,7 @@ class Demon():
             Demon.demons[k].owes.pop(self.name)
         Demon.demons.pop(self.name)
         self.requests = []
+        self.last_requests = []
 
     def hit(self):
         self.health -= 1
@@ -246,7 +254,7 @@ class Demon():
 
 
     def answer(self):
-        assert self.plan_target in self.requests
+        assert self.plan_target in self.last_requests
         d = Demon.demons.get(self.plan_target)
         if d is not None and d.fight:  # the fight may be over or d may be dead
             d.try_summon(self)
@@ -319,7 +327,7 @@ class AI(Demon):
             self.plan = "look"
             return
 
-        if (self.fight[self.side].back == self and random() < 0.05) or random < 0.01:
+        if (self.fight[self.side].back == self and random() < 0.05) or random() < 0.01:
             self.plan = "concede"
             return
 
@@ -332,7 +340,7 @@ class AI(Demon):
 
         if random() < 0.5:
             self.plan = "request"
-            self.plan_target = choice(Demon.demons)
+            self.plan_target = choice(list(Demon.demons))
             if self.plan_target is not self:
                 return
 
@@ -426,3 +434,38 @@ def init(num_demons=100):
     MIN_DEMONS=num_demons
     for i in range(num_demons):
         AI()
+
+
+def build_data(d):
+    """
+    type side=[{name:string,
+        plan:string,
+        target?:string,
+        success:boolean,
+        finalState:"here"|"gone"|"dead",
+        hp:number,
+        power:number,
+        human:boolean
+        }]
+    type fight = [side,side]
+    {fight: null | fight,
+    requests: [[name,fight]],
+    debts:[string],
+    changedFight:boolean,
+    nexttick:number /* number of seconds until next tick*/
+    tick: number
+    }"""
+    result = d.serialize()
+    if d.fight is None:
+        result["fight"]=None
+    else:
+        result["fight"]=d.fight.serialize()
+    result["requests"] = []
+    for name in d.requests:
+        if (req := Demon.demons.get(name)):
+            result["requests"].append((name,req.fight.serialize()))
+    result["owed"] = [(k,c) for k,c in d.owed.items() if c>=1]
+    result["changedFight"]=False
+    result["tick"]=time
+    return result
+

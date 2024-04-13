@@ -1,4 +1,5 @@
 import random
+random.seed(100)
 
 suffixes = ["x","v","z","th","ch","k","n","w"]
 prefixes = ["gr","q","","d","tr","g","dr","n","hr","r"]

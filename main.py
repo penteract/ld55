@@ -7,6 +7,7 @@ import json
 
 STATIC_FILES=["/index.html","/","/render.js"]
 
+TICK_TIME = 10
 class Handler(SimpleHTTPRequestHandler):
     """subclassing seems the simplest way to send files"""
     def send_string(self,s,hs={}):
@@ -27,16 +28,27 @@ class Handler(SimpleHTTPRequestHandler):
         #self.send_response(200,"hello")
     def do_GET(self):
         global last_tick
+        t = time.time()
+        if t>last_tick+TICK_TIME:
+            game.tick()
+            last_tick=t
         url = urlparse(self.path)
         if url.path in STATIC_FILES:
             return super().do_GET()
         elif url.path=="/update":
             qs = parse_qs(urlparse(self.path).query)
-            if name not in qs:
-                self.send_error
-            headers={}
-            headers["Content-Type"]="application/json"
-            self.send_string(json.dumps() ,headers)
+            if ("name" not in qs) or len(qs["name"])!=1:
+                self.send_error(400)
+                print(qs)
+            elif (name:=qs["name"][0]) not in game.Demon.demons:
+                print(name,game.Demon.demons)
+                self.send_error(400)
+            else:
+                dat = game.build_data(game.Demon.demons[name])
+                headers={}
+                headers["Content-Type"]="application/json"
+                dat["nexttick"] = (last_tick - time.time() + TICK_TIME + 0.1)
+                self.send_string(json.dumps(dat) , headers)
         else:
             self.send_error(404)
     def do_HEAD(self):
@@ -51,11 +63,12 @@ class Handler(SimpleHTTPRequestHandler):
 
 
 
-
-with HTTPServer(("localhost",8080),Handler) as httpd:
-    global last_tick
-    last_tick=time.time()
-    httpd.serve_forever()
+if __name__=="__main__":
+    game.init(10)
+    with HTTPServer(("localhost",8080),Handler) as httpd:
+        global last_tick
+        last_tick=time.time()
+        httpd.serve_forever()
 
 """API:
 
