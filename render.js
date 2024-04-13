@@ -1,6 +1,6 @@
 Math.TAU = 2 * Math.PI
 
-MAX_TIME = 5
+MAX_TIME = 10
 
 function drawClock(ticks = 0) {
     let clockCanvas = document.getElementById("clock");
@@ -26,56 +26,17 @@ function drawClock(ticks = 0) {
     ctx.fill()
 }
 
-ticks = 0
-window.setInterval(function () {
-    ticks += 1
-    drawClock(ticks)
-}, 1000)
-
-myName = "qaxnox"
-exampleFight = [
-    [
-        {
-            name: "qaxnox",
-            hp: 10,
-            power: 1,
-            human: true
-        },
-        {
-            name: "rixqexgoxqux",
-            hp: 10,
-            power: 2,
-            human: false
-        },
-        {
-            name: null,
-            hp: 10,
-            power: 2,
-            human: false
-        }
-    ],
-    [
-        {
-            name: null,
-            hp: 10,
-            power: 3,
-            human: true
-        },
-        {
-            name: null,
-            hp: 10,
-            power: 1,
-            human: false
-        },
-        {
-            name: null,
-            hp: 10,
-            power: 1,
-            human: false
-        },
-    ]
-
-]
+clockInterval = null
+function startClock() {
+    ticks = 0
+    if (clockInterval) {
+        window.clearInterval(clockInterval)
+    }
+    clockInterval = window.setInterval(function () {
+        ticks += 1
+        drawClock(ticks)
+    }, 1000)
+}
 
 function renderDemon(demon) {
     let elt = document.createElement("div")
@@ -99,7 +60,7 @@ function renderDemon(demon) {
 
     let hpElt = document.createElement("div")
     hpElt.classList.add("demonHp")
-    hpElt.textContent = demon.hp + " HP"
+    hpElt.textContent = demon.health + " HP"
     elt.appendChild(hpElt)
 
     let powerElt = document.createElement("div")
@@ -156,5 +117,41 @@ function renderMainFight(fight) {
     mainFightElt.appendChild(renderFight(fight))
 }
 
+function defaultErrorCallback(status, resp) {
+    console.error(status, resp)
+}
 
-renderMainFight(exampleFight)
+function httpGetAsync(theUrl, callback, errorCallback = defaultErrorCallback) {
+    var xmlHttp = new XMLHttpRequest();
+    xmlHttp.onreadystatechange = function () {
+        if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
+            callback(xmlHttp.responseText);
+        }
+        if (xmlHttp.readyState == 4 && xmlHttp.status != 200) {
+            errorCallback(xmlHttp.status, xmlHttp.responseText)
+        }
+    }
+    xmlHttp.open("GET", theUrl, true); // true for asynchronous 
+    xmlHttp.send(null);
+}
+
+
+myName = "qith"
+function requestInfo() {
+    startClock()
+
+    let url = "/update?name=" + myName
+    httpGetAsync(url, function (resp) {
+        resp = JSON.parse(resp)
+        let fight = resp.fight
+        if (fight === null) {
+            console.log("No fight!")
+            fight = [[], []]
+        }
+        renderMainFight(fight)
+        let nextTick = +resp.nexttick
+        window.setTimeout(requestInfo, nextTick * 1000)
+    })
+}
+
+requestInfo()
