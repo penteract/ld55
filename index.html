@@ -1,10 +1,107 @@
+<!DOCTYPE html>
+
 <html>
+
 <head>
-<title> Ludum Dare 55 </title>
-<script src="names.js"></script>
+    <title> Ludum Dare 55 </title>
+    <script src="names.js"></script>
+    <script src="render.js"></script>
+    <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
+
+    <canvas id="clock" width="30px" height="30px"></canvas>
+
+    <div id="mainFight" class="fight">
+
+        <!-- example fight data-->
+
+        <div class="fightSide fightSideLeft">
+            <div class="demon human you">
+                <div class="demonName">qaxnox</div>
+                <canvas class="demonImg" width="30px" height="30px"></canvas>
+                <div class="demonHp">10 HP</div>
+                <div class="demonPower">1</div>
+            </div>
+
+            <div class="demon">
+                <div class="demonName">rixqexgoxqux</div>
+                <canvas class="demonImg" width="30px" height="30px"></canvas>
+                <div class="demonHp">10 HP</div>
+                <div class="demonPower">2</div>
+            </div>
+
+            <div class="demon">
+                <div class="demonName">???</div>
+                <canvas class="demonImg" width="30px" height="30px"></canvas>
+                <div class="demonHp">10 HP</div>
+                <div class="demonPower">1</div>
+            </div>
+
+        </div>
+
+        <div class="noMansLand"></div>
+
+        <div class="fightSide fightSideRight">
+            <div class="demon">
+                <div class="demonName">???</div>
+                <canvas class="demonImg" width="30px" height="30px"></canvas>
+                <div class="demonHp">10 HP</div>
+                <div class="demonPower">1</div>
+            </div>
+
+            <div class="demon">
+                <div class="demonName">???</div>
+                <canvas class="demonImg" width="30px" height="30px"></canvas>
+                <div class="demonHp">10 HP</div>
+                <div class="demonPower">1</div>
+            </div>
+
+            <div class="demon human">
+                <div class="demonName">???</div>
+                <canvas class="demonImg" width="30px" height="30px"></canvas>
+                <div class="demonHp">10 HP</div>
+                <div class="demonPower">3</div>
+            </div>
+
+        </div>
+    </div>
+
+
+
+    <div id="actions">
+        <div class="actionCol" id="baseActions">
+            <div class="actionColInner">
+                <h3 id="headerBaseActs">Basic actions</h3>
+                <div class="act selected" id="actFire">🔥 Attack</div>
+                <div class="act" id="actConcede">🏳️ Concede</div> <!-- grey this out when not at back? -->
+            </div>
+        </div>
+
+        <div class="actionCol" id="summonActions">
+            <div class="actionColInner">
+                <h3 id="headerSummons">📜 Summons</h3>
+                <div id="summonActionsList"></div>
+            </div>
+        </div>
+
+        <div class="actionCol" id="requestActions">
+            <div class="actionColInner">
+                <h3 id="headerRequests">Possible requests</h3>
+                <div id="requestActionsList"></div>
+                <div class="act" id="actRequestUnk">❓ Unknown</div>
+            </div>
+        </div>
+
+        <div class="actionCol" id="invitations">
+            <div class="actionColInner">
+                <h3 id="headerInvitations">Invitations</h3>
+                <div id="invitationsList"></div>
+            </div>
+        </div>
+    </div>
+
 </body>
 
 </html>
-
