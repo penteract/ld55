@@ -464,7 +464,7 @@ def build_data(d):
         target?:string,
         success:boolean,
         finalState:"here"|"gone"|"dead",
-        hp:number,
+        health:number,
         power:number,
         human:boolean
         }]

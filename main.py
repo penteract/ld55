@@ -126,7 +126,7 @@ type side=[{name:string,
      target?:string,
      success:boolean,
      finalState:"here"|"gone"|"dead",
-     hp:number,
+     health:number,
      power:number,
      human:boolean
     }]
