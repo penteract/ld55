@@ -257,16 +257,38 @@ class Demon():
                         # TODO: ending the fight in the middle of the fight could mess with pending summons. test what happens (get summoned into an empty fight?)
             else:
                 raise Exception("Bad Plan")
-
     def create_plan(self):
-        if self.fight is None:
-            self.plan = "wait"
-        else:
-            self.plan = "fire"
+        abstract
 
 
 class AI(Demon):
-    pass
+    def create_plan(self):
+        if self.requests:
+            if random() < 0.75:
+                self.plan = "answer"
+                self.plan_target = choice(self.requests)
+                return
+
+        if self.fight is None:
+            self.plan = "look"
+            return
+
+        if (self.fight[self.side].back == self and random() < 0.05) or random < 0.01:
+            self.plan = "concede"
+            return
+
+        if random() < 0.3:
+            self.plan = "summon"
+            targets = [d for d, c in self.owed.items() if c >= 1]
+            self.plan_target = choice(targets)
+            return
+
+        if random < 0.5:
+            self.plan = "request"
+            self.plan_target = choice(game.Demon.demons)
+            return
+
+        self.plan = "fire"
 
 
 class Player(Demon):
