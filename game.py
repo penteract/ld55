@@ -115,10 +115,10 @@ class Demon():
         # transient data (doesn't last longer than a tick)
         self.requests = []
         self.plan = "wait"
-        self.planTarget = None
-        self.initTick()
+        self.plan_target = None
+        self.init_tick()
 
-    def initTick(self):
+    def init_tick(self):
         self.targeting = set()  # Demons that are about to appear in front of this one
         self.summoner = None
 
@@ -135,13 +135,13 @@ class Demon():
         else:
             self.fight[self.side].front = self.prev
         while self.targeting:
-            self.targeting.pop().setTarget(self.prev)
+            self.targeting.pop().set_target(self.prev)
         self.fight = None
         self.next = None
         self.prev = None
         self.side = 2
 
-    def insertAfter(self, summoner, fight, side):
+    def insert_after(self, summoner, fight, side):
         assert self.fight is None
         if summoner is None:
             self.next = fight[side].back
@@ -159,7 +159,7 @@ class Demon():
         self.fight = fight
         self.side = side
 
-    def setTarget(self, other):
+    def set_target(self, other):
         """change the target location of a summoning"""
         if other is not None:
             other.targeting.add(self)
@@ -196,20 +196,20 @@ class Demon():
         other.owes[self.name] -= 1
         assert self.owes[other.name] == other.owed[self.name]
 
-    def trySummon(self, other):
+    def try_summon(self, other):
         """enact a Summon, unless the actor is not older than someone else trying to summon the same demon in the same tick"""
         s = other.summoner
         if s is None or s[0].born > self.born:
             other.summoner = [self, self.fight, self.side]
-            other.setTarget(self)
+            other.set_target(self)
             if s is None:
                 Demon.summons.append(other)
 
     def answer(self):
-        assert self.planTarget in self.requests
-        d = Demon.demons.get(self.planTarget)
+        assert self.plan_target in self.requests
+        d = Demon.demons.get(self.plan_target)
         if d is not None and d.fight:  # the fight may be over or d may be dead
-            d.trySummon(self)
+            d.try_summon(self)
             self.be_owed_debt_by(d)
 
     def act(self):
@@ -218,7 +218,7 @@ class Demon():
             if self.plan == "wait":
                 pass
             elif self.plan == "look":
-                Demon.looking.append(self)
+                Demon.looking.add(self)
             elif self.plan == "answer":
                 self.answer()
             else:
@@ -230,7 +230,7 @@ class Demon():
                     if opp is not None:
                         opp.hit()
             elif self.plan == "request":
-                d = Demon.demons.get(self.planTarget)
+                d = Demon.demons.get(self.plan_target)
                 if d is not None:
                     d.requests.append(self.name)
                 else:
@@ -240,9 +240,9 @@ class Demon():
             elif self.plan == "answer":
                 self.answer()
             elif self.plan == "summon":
-                d = Demon.demons.get(self.planTarget)
-                if d is not None and self.owed[self.planTarget] >= 1:
-                    self.trySummon(d)
+                d = Demon.demons.get(self.plan_target)
+                if d is not None and self.owed[self.plan_target] >= 1:
+                    self.try_summon(d)
                     # should the debt still be canceled if the summon fails due to someone else summoning in the same tick?
                     self.cancel_debt_owed_by(d)
             elif self.plan == "concede":
@@ -250,7 +250,8 @@ class Demon():
                     opp = self.fight.opp(self.side).back
                     if opp is not None:
                         self.owe_debt_to(opp)
-                        self.fight.end()  # TODO: ending the fight in the middle of the fight could mess with pending summons. test what happens (get summoned into an empty fight?)
+                        self.fight.end()
+                        # TODO: ending the fight in the middle of the fight could mess with pending summons. test what happens (get summoned into an empty fight?)
             else:
                 raise Exception("Bad Plan")
 
@@ -274,32 +275,68 @@ def tick():
     time += 1
     Demon.summons = set()
     Demon.looking = set()
+
     # A lot of stuff happens per tick. TODO: Consider how to display it to a player
     # perform all actions (for AIs, these were planned in the previous tick)
     for d in list(Demon.demons.values()):
         if not d.dead:
             d.act()
+
     # handle summons
     for summoned in Demon.summons:
         if not summoned.dead:
             if summoned.fight is not None:
                 summoned.remove()
-            summoned.insertAfter(*summoned.summoner)
+            summoned.insert_after(*summoned.summoner)
     Demon.summons = []
-    # TODO: check for fights that are over (one side is empty)
 
-    # find fights to match up (TODO)
-    # ideas: random matches, or try by age, power, score. Consider pulling some people who weren't looking for one into fights.
-    Demon.looking = []
+    for d in Demon.demons.values():
+        if d.fight is not None:
+            fight = d.fight
+            if fight.side0.empty() or fight.side2.empty():
+                # TODO: pay out any rewards for winning fights? (score at least)
+                fight.end()
+
+    find_matchups()
 
     # create new demons if there aren't enough
     if len(Demon.demons) < 100:
         for i in range((110 - len(Demon.demons))//10):
             AI()
+
     # AIs make their choices based on the info they have at the start of the turn (now)
     for d in Demon.demons.values():
         d.create_plan()
 
 
-for i in range(100):
-    AI()
+def create_fight(side0, side1):
+    f = Fight()
+    for d in side0:
+        d.insert_after(None, f, 0)
+    for d in side1:
+        d.insert_after(None, f, 1)
+    return f
+
+
+def find_matchups():
+    looking = list(Demon.looking)
+    Demon.looking = set()
+
+    # temoprary - just pairs up demons looking demons as 1v1s
+    # TODO: be more sophisticated
+
+    # ideas: random matches, or try by age, power, score. Consider pulling some people who weren't looking for one into fights.
+    # prioritise pairing humans
+    # pair humans with AI after they've been looking for a certain number of turns, or if they check a box?
+    # bigger fights than 1v1s
+    # keep prior teams?
+
+    for i in range(0, len(looking), 2):
+        ds = looking[i:i+1]
+        if len(ds) == 2:
+            create_fight([ds[0]], [ds[1]])
+
+
+def init():
+    for i in range(100):
+        AI()
