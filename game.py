@@ -70,6 +70,8 @@ class Fight:
         return self[1-idx]
 
     def end(self):
+        print("Fight ended!", [d.name for d in self.side0], [
+              d.name for d in self.side1])
         for side in [self.side0, self.side1]:
             for d in list(side):
                 d.remove()
@@ -166,6 +168,7 @@ class Demon():
         self.summoner[0] = other
 
     def die(self):
+        print("Demon died!", self.name)
         self.remove()
         self.dead = True
         while self.owes:
@@ -203,7 +206,7 @@ class Demon():
             other.summoner = [self, self.fight, self.side]
             other.set_target(self)
             if s is None:
-                Demon.summons.append(other)
+                Demon.summons.add(other)
 
     def answer(self):
         assert self.plan_target in self.requests
@@ -276,6 +279,8 @@ def tick():
     Demon.summons = set()
     Demon.looking = set()
 
+    # print("Step", time)
+
     # A lot of stuff happens per tick. TODO: Consider how to display it to a player
     # perform all actions (for AIs, these were planned in the previous tick)
     for d in list(Demon.demons.values()):
@@ -293,7 +298,7 @@ def tick():
     for d in Demon.demons.values():
         if d.fight is not None:
             fight = d.fight
-            if fight.side0.empty() or fight.side2.empty():
+            if fight.side0.empty() or fight.side1.empty():
                 # TODO: pay out any rewards for winning fights? (score at least)
                 fight.end()
 
@@ -315,6 +320,7 @@ def create_fight(side0, side1):
         d.insert_after(None, f, 0)
     for d in side1:
         d.insert_after(None, f, 1)
+    print("Created fight!", [d.name for d in side0], [d.name for d in side1])
     return f
 
 
@@ -332,7 +338,7 @@ def find_matchups():
     # keep prior teams?
 
     for i in range(0, len(looking), 2):
-        ds = looking[i:i+1]
+        ds = looking[i:i+2]
         if len(ds) == 2:
             create_fight([ds[0]], [ds[1]])
 
