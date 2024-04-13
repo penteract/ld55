@@ -109,6 +109,12 @@ class Demon():
     demons = {}
     summons = dset()
     looking = dset()
+    def serialize(self):
+        res = {}
+        for k in ["name","power","score","health","plan"]:
+            res[k]=getattr(self,k)
+
+        return self.serialized
 
     def __init__(self):
         # Fixed data

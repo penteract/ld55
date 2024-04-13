@@ -5,6 +5,8 @@ import game
 import time
 import json
 
+STATIC_FILES=["/index.html","/","/render.js"]
+
 class Handler(SimpleHTTPRequestHandler):
     """subclassing seems the simplest way to send files"""
     def send_string(self,s,hs={}):
@@ -26,7 +28,7 @@ class Handler(SimpleHTTPRequestHandler):
     def do_GET(self):
         global last_tick
         url = urlparse(self.path)
-        if url.path in ["/index.html","/"]:
+        if url.path in STATIC_FILES:
             return super().do_GET()
         elif url.path=="/update":
             qs = parse_qs(urlparse(self.path).query)
@@ -39,7 +41,7 @@ class Handler(SimpleHTTPRequestHandler):
             self.send_error(404)
     def do_HEAD(self):
         url = urlparse(self.path)
-        if url.path in ["/index.html","/"]:
+        if url.path in STATIC_FILES:
             return super().do_HEAD()
         elif url.path=="/update":
             self.send_error(404)
@@ -63,7 +65,7 @@ response: file
 GET update?name= &truename=
 response: json
 type side=[{name:string,
-     action:string,
+     plan:string,
      target?:string,
      success:boolean,
      finalState:"here"|"gone"|"dead",
