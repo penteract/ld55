@@ -76,7 +76,8 @@ type side=[{name:string,
 type fight = [side,side]
 {fight: null | fight,
  requests: [[name,fight]],
- debts:[string]
+ debts:[string],
+ changedFight:boolean,
  nexttick:number /* number of seconds until next tick*/
  tick: number
 }
