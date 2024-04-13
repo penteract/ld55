@@ -29,7 +29,8 @@ class TestAI(game.AI):
         if random() < 0.5:
             self.plan = "request"
             self.plan_target = choice(list(game.Demon.demons))
-            return
+            if self.plan_target is not self:
+                return
 
         self.plan = "fire"
 

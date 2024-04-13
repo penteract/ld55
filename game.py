@@ -310,13 +310,15 @@ class AI(Demon):
         if random() < 0.3:
             self.plan = "summon"
             targets = [d for d, c in self.owed.items() if c >= 1]
-            self.plan_target = choice(targets)
-            return
+            if targets:
+                self.plan_target = choice(targets)
+                return
 
         if random() < 0.5:
             self.plan = "request"
             self.plan_target = choice(Demon.demons)
-            return
+            if self.plan_target is not self:
+                return
 
         self.plan = "fire"
 
