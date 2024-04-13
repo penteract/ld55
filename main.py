@@ -1,5 +1,6 @@
 from http.server import BaseHTTPRequestHandler,HTTPServer
-from http.server import *
+#from http.server import *
+import game
 
 class Handler(BaseHTTPRequestHandler):
     def send_string(self,s):
@@ -16,7 +17,37 @@ class Handler(BaseHTTPRequestHandler):
             print(">>",end=" ")
             print(eval(input()))
         #self.send_response(200,"hello")
+    def do_GET(self):
+        self.send_string("hello")
+
+
 
 
 with HTTPServer(("localhost",8080),Handler) as httpd:
     httpd.serve_forever()
+
+"""API:
+
+GET index.html
+response: file
+
+GET update
+response: json
+type side=[{name:string,
+     action:string,
+     target?:string,
+     success:boolean,
+     finalState:"here"|"gone"|"dead"
+    }]
+type fight = [side,side]
+{fight: null | fight,
+ requests: [[name,fight]],
+ debts:[string]
+}
+
+POST newDemon
+response: name
+
+POST setPlan?plan= &target= (request unknown)
+
+"""
