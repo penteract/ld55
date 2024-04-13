@@ -143,8 +143,15 @@ function renderMainFight(fight) {
     mainFightElt.appendChild(renderFight(fight))
 }
 
+function renderSelf(demon) {
+    let selfDemonElt = document.getElementById("selfDemon")
+    selfDemonElt.innerHTML = ""
+    selfDemonElt.appendChild(renderDemon(demon))
+}
+
 function defaultErrorCallback(status, resp) {
     console.error(status, resp)
+    window.clearInterval(clockInterval)
 }
 
 function httpGetAsync(theUrl, callback, errorCallback = defaultErrorCallback) {
@@ -170,14 +177,49 @@ function requestInfo() {
     httpGetAsync(url, function (resp) {
         resp = JSON.parse(resp)
         let fight = resp.fight
+
+        showBaseActions(fight !== null)
+
         if (fight === null) {
             console.log("No fight!")
             fight = [[], []]
         }
+
         renderMainFight(fight)
+        renderSelf(resp)
+
         let nextTick = +resp.nexttick
         window.setTimeout(requestInfo, nextTick * 1000)
     })
 }
 
 requestInfo()
+
+function selectAct(actElt) {
+    selected = document.getElementsByClassName("selected")
+    for (sel of selected) {
+        sel.classList.remove("selected")
+    }
+
+    if (typeof (actElt) === "string") {
+        actElt = document.getElementById(actElt)
+    }
+    actElt.classList.add("selected")
+}
+
+function showBaseActions(inFight) {
+    nonFightActs = document.getElementById("baseActsNonFight")
+    fightActs = document.getElementById("baseActsFight")
+    selfDemon = document.getElementById("selfDemon")
+
+    if (inFight) {
+        fightActs.classList.remove("hidden")
+        nonFightActs.classList.add("hidden")
+        selfDemon.classList.add("hidden")
+    }
+    else {
+        fightActs.classList.add("hidden")
+        nonFightActs.classList.remove("hidden")
+        selfDemon.classList.remove("hidden")
+    }
+}

@@ -11,6 +11,14 @@
     margin-left: -15px;
 }
 
+#selfDemon {
+    position: absolute;
+    left: 50%;
+    top: 100px;
+    margin-left: -40px;
+    text-align: center;
+}
+
 #actions {
     width: 100%;
     padding-left: 1px;
@@ -32,7 +40,11 @@
 
 .actionCol {
     float: left;
-    width: 25%;
+    width: 170px;
+}
+
+#invitations {
+    width: calc(100% - 170px - 170px - 170px);
 }
 
 .actionColInner {
@@ -69,7 +81,6 @@
 }
 
 .demon {
-    writing-mode: horizontal-tb;
     display: inline-block;
     width: 80px;
     overflow: hidden;
@@ -89,4 +100,8 @@
 
 .you {
     background: lightblue;
+}
+
+.hidden {
+    display: none;
 }
