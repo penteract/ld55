@@ -1,4 +1,5 @@
 Summoning - Turn based strategy
+ - Where were the things summoned from? can they be summoned away from you? Do they arrive at full health?
 It spreads, Decay, collapse - reach a goal on a grid while avoiding probabilisic corruption (king moves avoiding knight moves?)
 Recycle, strange machine - spacechem with irrational numbers and without the layout questions
 Strength in numbers, you don't play as the main char - choose stats for a character which fights without much input from you
@@ -7,4 +8,5 @@ Strength in numbers, you don't play as the main char - choose stats for a charac
   - int makes player pick better options
   - spd detrimental
   - 
+Tunnels, cartography? - 4D maze
 Fishing - Phishing, finding K-trees ???
