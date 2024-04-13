@@ -1,0 +1,93 @@
+#mainFight {
+    width: 100%;
+    height: 300px;
+    border: 2px solid black;
+}
+
+#clock {
+    position: absolute;
+    left: 50%;
+    top: 14px;
+    margin-left: -15px;
+}
+
+#actions {
+    width: 100%;
+    padding-left: 1px;
+    padding-right: 1px
+}
+
+.act {
+    background-color: lightgrey;
+    padding: 2px
+}
+
+.act:hover:not(.selected) {
+    background-color: darkgrey;
+}
+
+.selected {
+    background-color: grey;
+}
+
+.actionCol {
+    float: left;
+    width: 25%;
+}
+
+.actionColInner {
+    border: 1px solid red
+}
+
+.fight {
+    width: 100%;
+    height: 100%;
+}
+
+.fightSide {
+    border: 1px solid red;
+    height: 100%;
+}
+
+.fightSideLeft {
+    width: 40%;
+    float: left
+}
+
+.fightSideRight {
+    width: 40%;
+    float: right;
+    text-align: right;
+}
+
+.fightSideLeft.demon {
+    float: left
+}
+
+.fightSideRight.demon {
+    float: right
+}
+
+.demon {
+    writing-mode: horizontal-tb;
+    display: inline-block;
+    width: 80px;
+    overflow: hidden;
+}
+
+.demonImg {
+    background: green;
+}
+
+.demonPower {
+    font-weight: bold;
+    color: red;
+}
+
+.human {
+    background: lightyellow;
+}
+
+.you {
+    background: lightblue;
+}
