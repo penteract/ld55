@@ -1,6 +1,7 @@
 Math.TAU = 2 * Math.PI
 
 MAX_TIME = 10
+MAXHEALTH = 10
 
 function drawClock(ticks = 0) {
     let clockCanvas = document.getElementById("clock");
@@ -74,7 +75,32 @@ function renderDemon(demon) {
 function renderDemonImg(demon, canvas) {
     // TODO
     canvas.width = 30
-    canvas.height = 30
+    canvas.height = 60
+    ctx = canvas.getContext("2d")
+    let x=1
+    for(let c of demon.name){
+        x*=211
+        x+=c.charCodeAt(0)
+        x=x%65535
+    }
+    function rnd(n){
+        let k = x%n
+        x=(x*211)%65535
+        return k
+    }
+    base=50
+    ctx.fillStyle=`rgb(${180+rnd(76)},0,0)`
+    for(let i of [0,1,2]){
+        let h = 5+rnd(5)+i*2
+        let w = 10+rnd(5)-i*2
+        ctx.beginPath()
+        ctx.ellipse(15+i*(rnd(5)-2.5),base-h,w,h,0,0,2*Math.PI)
+        base-=h*1.5-rnd(8)
+        ctx.fill()
+    }
+    ctx.fillStyle="#0E0"
+    ctx.beginPath()
+    ctx.fillRect(0,51, 30*demon.health/MAXHEALTH,8)
 }
 
 function renderFightSide(side, left = true) {
