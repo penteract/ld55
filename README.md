@@ -21,6 +21,42 @@ Summoning - Turn based strategy
       - AI is necessary and not straightforward, but could be quite stupid.
  - Names are important?
 
+ - incentive to attack? 
+ - - reward for killing? 
+ - - inherit contracts? could reduce potential strategy in hoping debtors get killed / attempting to get them killed
+ - - contracts have random chance to be inherited?
+ - - potential reward outside of contracts: extra max hp?
+ - - who gets reward? lander of killing blow; everyone on team; commander (back); everyone who attacked?
+ - - if contracts are part of reward, how to divide? are fractional contracts meaningful? (build up to full contract for a summon). any way to share fractional contracts with teammates?
+ - - probably don't want to dupicate contracts?
+
+ - incentive for player to not disconnect and reconnect? 
+ - - any sort of cookies used to track players could be cleared, so cannot easily do something like give new player debts based on anything involving old player (e.g. to who they abandoned)
+ - - disconnecting is basically equiv to death - reward to opponents? is "making the average demon stronger" much of a deterent - you could be fighting with them as well as against them
+ - - being in a strictly worse off position currently than at the start is difficult to deter disconnects (e.g. owe debts, not owed any)
+ - - if you can get improvements outside of contracts such as maxhp there's incentive not to lose that 
+
+ - incentive to concede a losing fight? which incurrs debt to enemy leader (back)
+ - - ofc there's not dying; incentives for that are similar to incentives for not disconnecting
+ - - if not yourself in immediete danger of death? could want to preserve lives of teammates if they owe you
+ - - could deny enemy reward for killing 
+ - - loyalty reward for saving life of teammates? probably don't want to incentivies conceding even or just slightly behind fights or fights that have just started; so full contract maybe too much. fractional contracts? if AIs, more likely to accept your requests?
+ - - everyone heals (to full?) when fight ends? through concession, killing last enemy, or last enemy being summoned away
+
+ - incentive to make request summons instead of calling in a debt? (of someone else, or of them)
+ - - it doesn't use up your contract ofc
+ - - but riskier - they could decline; and if they accept you owe them 
+ - - perhaps could offer more than a contract to summon you? more than one such contract, or other contracts you have. fractional contracts? offer hp? (lose some hp to heal them)
+ - - potential to trick someone by offering a contract for someone you know to be dead but they may not?
+ - - is offering more stuff to make them more likely to accept actually a good strategic decision in enough cases
+ - - requests also currently take 2 turns to process
+
+ - incentive to accept requests?
+ - - ofc you gain a contract (+more if you can be offered more)
+ - - being in a winning fight is good. (why? due to incentive for killing?) however might not want to be in a riskier position (at front) even when your side is better off.
+ - - does this make those at front more likely to call in debts or attack if they have none (since requests less likely not be accepted) wheras those at back prefer more often to request 
+ - - heal 1hp upon being summoned? (by request or by contract)
+
 
 ## Actual plan
 
