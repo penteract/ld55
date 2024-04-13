@@ -113,8 +113,7 @@ class Demon():
         res = {}
         for k in ["name","power","score","health","plan"]:
             res[k]=getattr(self,k)
-
-        return self.serialized
+        return res
 
     def __init__(self):
         # Fixed data
