@@ -50,12 +50,16 @@ class FightSide:
 
     def __bool__(self):
         return not self.empty()
+    def __str__(self):
+        return "[*"+",".join(d.name for d in self)+"*]"
 
 
 class Fight:
+    fights = set()
     def __init__(self):
         self.side0 = FightSide()
         self.side1 = FightSide()
+        Fight.fights.add(self)
 
     def __getitem__(self, idx):
         if idx == 0:
@@ -76,8 +80,13 @@ class Fight:
         for side in [self.side0, self.side1]:
             for d in list(side):
                 d.remove()
-                d.plan = "wait"
+                if not d.acted: d.plan = "wait"
+                #(Toby: knowing the old plan might be helpful for UI)
             assert side.empty()
+        print("removing",self)
+        Fight.fights.remove(self)
+    def __str__(self):
+        return str(self.side0)+"vs"+str(self.side1)
 
 
 class Demon():
@@ -124,6 +133,7 @@ class Demon():
     def init_tick(self):
         self.targeting = set()  # Demons that are about to appear in front of this one
         self.summoner = None
+        self.acted=False
 
     def remove(self):
         """remove self from the linked list that is its fight"""
@@ -150,8 +160,13 @@ class Demon():
             self.next = fight[side].back
             fight[side].back = self
         else:
-            assert summoner.fight == fight
-            assert summoner.side == side
+            try:
+                assert summoner.fight == fight
+                assert summoner.side == side
+            except Exception:
+                while True:
+                    print(">>",end=" ")
+                    print(eval(input()))
             self.next = summoner.next
             summoner.next = self
         self.prev = summoner
@@ -165,6 +180,12 @@ class Demon():
     def set_target(self, other):
         """change the target location of a summoning"""
         if other is not None:
+            try:
+                assert other.fight is self.summoner[1]
+            except Exception:
+                while True:
+                    print(">>",end=" ")
+                    print(eval(input()))
             other.targeting.add(self)
         self.summoner[0] = other
 
@@ -218,6 +239,7 @@ class Demon():
 
     def act(self):
         """Perform a planned action"""
+        self.acted=True
         if self.fight is None:
             if self.plan == "wait":
                 pass
@@ -226,7 +248,7 @@ class Demon():
             elif self.plan == "answer":
                 self.answer()
             else:
-                raise Exception("Bad Plan")
+                raise Exception("Bad Plan: ",self.plan)
         else:
             if self.plan == "fire":
                 if self.fight is not None:
@@ -255,12 +277,18 @@ class Demon():
                     if opp is not None:
                         self.owe_debt_to(opp)
                         self.fight.end()
-                        # TODO: ending the fight in the middle of the fight could mess with pending summons. test what happens (get summoned into an empty fight?)
+                        # jfb: ending the fight in the middle of the fight could mess with pending summons. test what happens (get summoned into an empty fight?)
+                        # Toby: This should be handled by setting summoner.fight to None in d.remove()
+
             else:
                 raise Exception("Bad Plan")
 
     def create_plan(self):
         abstract
+    def __str__(self):
+        return "The Demon "+self.name
+    def __repr__(self):
+        return "<"+self.__class__.__name__+" "+self.name+">"
 
 
 class AI(Demon):
@@ -296,14 +324,16 @@ class AI(Demon):
 class Player(Demon):
     pass
 
-
+MIN_DEMONS=100
 def tick():
     global time
     time += 1
     Demon.summons = set()
     Demon.looking = set()
 
-    # print("Step", time)
+    print("Step", time)
+    for d in Demon.demons.values():
+        d.init_tick()
 
     # A lot of stuff happens per tick. TODO: Consider how to display it to a player
     # perform all actions (for AIs, these were planned in the previous tick)
@@ -313,24 +343,24 @@ def tick():
 
     # handle summons
     for summoned in Demon.summons:
-        if not summoned.dead:
+        if not summoned.dead and summoned.summoner[1] in Fight.fights:
+            #Toby: Consider making a priority queue of summonings
             if summoned.fight is not None:
                 summoned.remove()
+            print(summoned,"summoned by",summoned.summoner[0],"in fight",repr(summoned.summoner[1]))
             summoned.insert_after(*summoned.summoner)
     Demon.summons = []
 
-    for d in Demon.demons.values():
-        if d.fight is not None:
-            fight = d.fight
-            if fight.side0.empty() or fight.side1.empty():
-                # TODO: pay out any rewards for winning fights? (score at least)
-                fight.end()
+    for fight in list(Fight.fights):
+        if fight.side0.empty() or fight.side1.empty():
+            # TODO: pay out any rewards for winning fights? (score at least)
+            fight.end()
 
     find_matchups()
 
     # create new demons if there aren't enough
-    if len(Demon.demons) < 100:
-        for i in range((110 - len(Demon.demons))//10):
+    if len(Demon.demons) < MIN_DEMONS:
+        for i in range((MIN_DEMONS+10 - len(Demon.demons))//10):
             AI()
 
     # AIs make their choices based on the info they have at the start of the turn (now)
@@ -339,17 +369,18 @@ def tick():
 
 
 def create_fight(side0, side1):
+    print(side0,"starts a fight against",side1)
     f = Fight()
-    for d in side0:
+    for d in [side0]:
         d.insert_after(None, f, 0)
-    for d in side1:
+    for d in [side1]:
         d.insert_after(None, f, 1)
-    print("Created fight!", [d.name for d in side0], [d.name for d in side1])
+    #print("Created fight!", [d.name for d in side0], [d.name for d in side1])
     return f
 
 
 def find_matchups():
-    looking = list(Demon.looking)
+    looking = [d for d in Demon.looking if not d.fight]
     Demon.looking = set()
 
     # temoprary - just pairs up demons looking demons as 1v1s
@@ -364,9 +395,11 @@ def find_matchups():
     for i in range(0, len(looking), 2):
         ds = looking[i:i+2]
         if len(ds) == 2:
-            create_fight([ds[0]], [ds[1]])
+            create_fight(ds[0], ds[1])
 
 
-def init():
-    for i in range(100):
+def init(num_demons=100):
+    global MIN_DEMONS
+    MIN_DEMONS=num_demons
+    for i in range(num_demons):
         AI()

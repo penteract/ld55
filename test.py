@@ -1,3 +1,4 @@
+import sys
 import game
 from random import random, choice
 
@@ -35,7 +36,23 @@ class TestAI(game.AI):
 
 game.AI = TestAI
 
-game.init()
+num_iters=10
+num_demons=10
+usage = """python test.py [num_iters [num_demons]]"""
 
-for i in range(100000):
-    game.tick()
+if __name__=="__main__":
+    if len(sys.argv)>1:
+        try:
+            num_iters = int(sys.argv[1])
+            if len(sys.argv)==3:
+                num_demons = int(sys.argv[2])
+            elif len(sys.argv)>3:
+                raise Exception("Too many arguments")
+        except e:
+            print(usage,file=sys.stderr)
+            raise e
+    game.init(num_demons)
+
+
+    for i in range(num_iters):
+        game.tick()

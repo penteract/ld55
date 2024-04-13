@@ -1,7 +1,7 @@
 import random
 
 suffixes = ["x","v","z","th","ch","k","n","w"]
-prefixes = ["gr","q","","d","tr","g","dr","n","hr","r","'"]
+prefixes = ["gr","q","","d","tr","g","dr","n","hr","r"]
 vowels = ["u","o","i","a","e"]#"ø" looks cool, but lets not introduce unicode issues
 def fromListRand(l):
     n = len(l)
