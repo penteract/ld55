@@ -39,6 +39,11 @@
     border: 1px solid red
 }
 
+.fight {
+    width: 100%;
+    height: 100%;
+}
+
 .fightSide {
     border: 1px solid red;
     height: 100%;
