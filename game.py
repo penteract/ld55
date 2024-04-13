@@ -483,7 +483,7 @@ def build_data(d):
         result["fight"] = d.fight.serialize()
     result["requests"] = []
     for name in d.requests:
-        if (req := Demon.demons.get(name)):
+        if (req := Demon.demons.get(name)) and req.fight:
             result["requests"].append((name, req.fight.serialize()))
     result["owed"] = [(k, c) for k, c in d.owed.items() if c >= 1]
     result["changedFight"] = False
