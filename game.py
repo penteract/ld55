@@ -294,7 +294,7 @@ class Demon():
                         opp.hit()
             elif self.plan == "request":
                 d = Demon.demons.get(self.plan_target)
-                if d is not None:
+                if d is not None and d != self:
                     d.requests.append(self.name)
                 else:
                     self.plan = "request2"  # avoid forcing request2 to happen next turn

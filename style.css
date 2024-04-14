@@ -86,9 +86,6 @@
     overflow: hidden;
 }
 
-.demonImg {
-}
-
 .demonPower {
     font-weight: bold;
     color: red;
@@ -102,6 +99,21 @@
     background: lightblue;
 }
 
+.highlight {
+    background: lightgreen;
+}
+
 .hidden {
     display: none;
+}
+
+.invitation {
+    height: 200px;
+    /* TODO: why is this necassary... 
+    without this, height is 0 (despite containing children with nonzero height)
+    find a way to do this that doesn't require a fixed height? */
+}
+
+.summonCount {
+    display: inline-block;
 }
