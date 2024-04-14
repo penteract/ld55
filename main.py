@@ -40,15 +40,17 @@ class Handler(SimpleHTTPRequestHandler):
     def do_POST(self):
         url = urlparse(self.path)
         if url.path == "/newDemon":
-            self.send_string(game.Player().name+"\n"+game.names.randname())
+            newPlayer = game.Player()
+            self.send_string(newPlayer.name+"\n"+game.names.randname())
+            print("new Player", newPlayer)
         elif url.path == "/setPlan":
             qs = parse_qs(urlparse(self.path).query)
             if ("name" not in qs) or len(qs["name"]) != 1:
-                self.send_error(400)
+                self.send_error(400,"No name")
                 return
             elif not (d := game.Demon.demons.get(name := qs["name"][0])):
                 print("Couldn't find ", name, game.Demon.demons)
-                self.send_error(400)
+                self.send_error(400,"Unknown Name")
                 return
             if "tick" not in qs or len(qs["tick"]) != 1 or qs["tick"][0] != str(game.time):
                 print(game.time)
@@ -83,11 +85,11 @@ class Handler(SimpleHTTPRequestHandler):
         elif url.path == "/update":
             qs = parse_qs(urlparse(self.path).query)
             if ("name" not in qs) or len(qs["name"]) != 1:
-                self.send_error(400)
+                self.send_error(400,"No name")
                 print(qs)
             elif (name := qs["name"][0]) not in game.Demon.demons:
                 print(name, game.Demon.demons)
-                self.send_error(400)
+                self.send_error(400,"Unknown Name")
             else:
                 dat = game.build_data(game.Demon.demons[name])
                 headers = {}
