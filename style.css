@@ -40,7 +40,8 @@
 
 .actionCol {
     float: left;
-    width: 170px;
+    width: 174px;
+    margin-left: -4px;
 }
 
 #invitations {
@@ -48,7 +49,8 @@
 }
 
 .actionColInner {
-    border: 1px solid red
+    border-left: 4px solid black;
+    border-right:4px solid black;
 }
 
 .fight {
