@@ -1,8 +1,12 @@
-Make clickng on any action do something
+// Make clickng on any action do something
 
 Get animations
  - show shots from demons that successfully shoot
  - make the result of a battle clear
+
+Handle Game Over appropriately:
+ don't just 400
+ report kills, wins, age, debts
 
 Get animations working properly
   - track what happens on the server side
