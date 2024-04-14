@@ -168,6 +168,7 @@ function renderInvitation(inv) {
 
     let fightElt = renderFight(fight, name)
     elt.appendChild(fightElt)
+    elt.addEventListener("click",e=>act(elt,"answer",name))
 
     // TODO: the height of this elt is messed up without setting its hight to constant within css...
 
@@ -198,7 +199,7 @@ function renderSummon(summon) {
     countElt.classList.add("summonCount")
     countElt.textContent = "x " + count
     elt.appendChild(countElt)
-
+    elt.addEventListener("click",e=>act(elt,"summon",demonName))
     return elt
 }
 
@@ -218,7 +219,7 @@ function renderPossibleRequest(demonName) {
 
     let demonElt = renderDemon(lookupDemon(demonName))
     elt.appendChild(demonElt)
-
+    elt.addEventListener("click",e=>act(elt,"request",demonName))
     return elt
 }
 

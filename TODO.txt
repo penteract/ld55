@@ -27,4 +27,4 @@ Prepare and submit the game
 
 
   BUGS:
-  without accepting invitations being implemented, hrechnexgraw ended up able to summon something.
+  without accepting invitations being implemented, hrechnexgraw ended up able to summon something. (not a bug; could have been caused by opponent's concession)
