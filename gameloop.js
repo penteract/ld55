@@ -1,10 +1,12 @@
 
 function requestInfo() {
-    startClock()
 
     let url = "/update?name=" + myName
     httpGetAsync(url, function (resp) {
         resp = JSON.parse(resp)
+        let nextTick = +resp.nexttick
+        startClock(nextTick)
+
         let fight = resp.fight
 
         showBaseActions(fight !== null)
@@ -21,8 +23,7 @@ function requestInfo() {
         renderSummons(resp.owed)
         renderPossibleRequests()
 
-        let nextTick = +resp.nexttick
-        window.setTimeout(requestInfo, nextTick * 1000)
+        requestTimeout = window.setTimeout(requestInfo, nextTick * 1000)
     })
 }
 

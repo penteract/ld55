@@ -9,7 +9,7 @@ function drawClock(ticks = 0) {
     let w = clockCanvas.width
     let h = clockCanvas.height
 
-    ticks %= MAX_TIME
+    //ticks %= MAX_TIME
 
     begin_angle_deg = -90
     end_angle_deg = begin_angle_deg + ticks / MAX_TIME * 360
@@ -27,16 +27,24 @@ function drawClock(ticks = 0) {
     ctx.fill()
 }
 
-clockInterval = null
-function startClock() {
-    ticks = 0
-    if (clockInterval) {
-        window.clearInterval(clockInterval)
+clockTimeout = null
+function startClock(timeleft) {
+    // drawClock(maxtime) should be called exactly when timeleft hits 0
+    ticks = (MAX_TIME - timeleft+0.99)|0
+    if (clockTimeout) {
+        window.clearInterval(clockTimeout)
     }
-    clockInterval = window.setInterval(function () {
+    function runTick() {
         ticks += 1
         drawClock(ticks)
-    }, 1000)
+        if (ticks<MAX_TIME){
+            clockTimeout = window.setTimeout(runTick,1000)
+        }
+    }
+    drawClock(ticks)
+    if (ticks<MAX_TIME){
+        clockTimeout = window.setTimeout(runTick, 1000*(MAX_TIME - timeleft+0.99 - ticks))
+    }
 }
 
 function renderDemon(demon, highlight) {
@@ -109,9 +117,9 @@ function renderFightSide(side, left = true, highlight) {
     sideElt.classList.add("fightSide")
     sideElt.classList.add(left ? "fightSideLeft" : "fightSideRight")
 
-    if (!left) {
+    /*if (!left) {
         side = side.map(i => i).reverse()
-    }
+    }*/
 
     for (let demon of side) {
         let demonElt = renderDemon(demon, highlight)

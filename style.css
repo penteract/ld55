@@ -31,6 +31,7 @@ body{
     background-color: lightgrey;
     margin-top: 5px;
     margin-bottom:5px;
+    padding: 2px 4px;
 }
 
 .act:hover:not(.selected) {
@@ -75,6 +76,22 @@ body{
     float: right;
     text-align: right;
 }
+.fightSide::after{
+    content:"<-";
+}
+
+.fightSideRight{
+    direction:rtl
+}
+
+/*RLO - this makes wrapping work symettrically. reflecting the whole thing might work better
+.fightSideRight::before {
+    content:"‮";
+}
+.fightSideRight::after {
+    content:"<-‬";
+}
+PDF*/
 
 .fightSideLeft.demon {
     float: left
