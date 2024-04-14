@@ -5,7 +5,7 @@ import game
 import time
 import json
 
-STATIC_FILES = ["/index.html", "/", "/render.js", "/gameloop.js", "/style.css"]
+STATIC_FILES = ["/index.html", "/", "/render.js", "/gameloop.js","/serverComms.js", "/style.css"]
 
 TICK_TIME = 10
 

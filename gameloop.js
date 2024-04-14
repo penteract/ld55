@@ -6,7 +6,7 @@ function requestInfo() {
         resp = JSON.parse(resp)
         let nextTick = +resp.nexttick
         startClock(nextTick)
-
+        clearSelected()
         let fight = resp.fight
 
         showBaseActions(fight !== null)
@@ -22,28 +22,10 @@ function requestInfo() {
         renderInvitations(resp.requests)
         renderSummons(resp.owed)
         renderPossibleRequests()
+        lastDataTick=resp.tick
 
         requestTimeout = window.setTimeout(requestInfo, nextTick * 1000)
     })
-}
-
-function httpGetAsync(theUrl, callback, errorCallback = defaultErrorCallback) {
-    var xmlHttp = new XMLHttpRequest();
-    xmlHttp.onreadystatechange = function () {
-        if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
-            callback(xmlHttp.responseText);
-        }
-        if (xmlHttp.readyState == 4 && xmlHttp.status != 200) {
-            errorCallback(xmlHttp.status, xmlHttp.responseText)
-        }
-    }
-    xmlHttp.open("GET", theUrl, true); // true for asynchronous
-    xmlHttp.send(null);
-}
-
-function defaultErrorCallback(status, resp) {
-    console.error(status, resp)
-    window.clearInterval(clockInterval)
 }
 
 knownDemons = {}
@@ -117,8 +99,9 @@ function isKnownDemonName(demonName) {
 }
 myName=undefined
 truename=undefined
+
 //Initialization
-fetch("./newDemon",{"method":"POST"}).then(r=>r.text()).then(txt=>{
+requestNewName(txt=>{
     [myName,truename]=txt.split("\n")
     requestInfo()
 })

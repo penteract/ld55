@@ -232,17 +232,25 @@ function renderPossibleRequests() {
         }
     }
 }
-
-function selectAct(actElt) {
+function clearSelected(){
     selected = document.getElementsByClassName("selected")
     for (sel of selected) {
         sel.classList.remove("selected")
     }
-
+}
+function renderSelectAct(actElt) {
+    clearSelected()
     if (typeof (actElt) === "string") {
         actElt = document.getElementById(actElt)
     }
     actElt.classList.add("selected")
+}
+
+function renderTempSelectAct(el) {
+    el.classList.add("tempSelected")
+}
+function clearTempSelectAct(el) {
+    el.classList.remove("tempSelected")
 }
 
 function showBaseActions(inFight) {

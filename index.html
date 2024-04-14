@@ -25,12 +25,12 @@
             <div class="actionColInner">
                 <h3 id="headerBaseActs">Basic Actions</h3>
                 <div id="baseActsFight" class="hidden">
-                    <div class="act" id="actFire">🔥 Attack</div>
-                    <div class="act" id="actConcede">🏳️ Concede</div>
+                    <div class="act" onclick="act(this,'fire')" id="actFire">🔥 Attack</div>
+                    <div class="act" onclick="act(this,'concede')" id="actConcede">🏳️ Concede</div>
                 </div>
                 <div id="baseActsNonFight">
-                    <div class="act">🕒 Wait</div>
-                    <div class="act">👀 Look for a fight</div>
+                    <div class="act" onclick="act(this,'wait')">🕒 Wait</div>
+                    <div class="act" onclick="act(this,'look')">👀 Look for a fight</div>
                 </div>
             </div>
         </div>
@@ -46,7 +46,7 @@
             <div class="actionColInner">
                 <h3 id="headerRequests" title="Ask for help in a fight, but beware: you will owe them a favour" >Request Help</h3>
                 <div id="requestActionsList"></div>
-                <div class="act" id="actRequestUnk">❓ Unknown</div>
+                <div class="act" onclick="act(this,'look')" id="actRequestUnk">❓ Unknown</div>
             </div>
         </div>
 
@@ -60,6 +60,7 @@
 
 
     <script src="render.js"></script>
+    <script src="serverComms.js"></script>
     <script src="gameloop.js"></script>
 </body>
 
