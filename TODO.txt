@@ -10,7 +10,8 @@ Handle Game Over appropriately:
 
 Get animations working properly
   - track what happens on the server side
-    - fix summons so that they appear in the right places (create placeholders that exist within the linked list)
+    // - fix summons so that they appear in the right places (create placeholders that exist within the linked list)
+       - - summoning circles have been added to track this - check they're handled correctly (only last for the turn they're supposed to etc)
   - make shots hit the right targets while summoning attempts are made and deaths occur;
        then animate summons (animate horizontal shrinking+growing; consider how to manage fizzles)
 
@@ -18,6 +19,8 @@ Get animations working properly
 
 Rendering
  - consider dynamically scaling fights to fit the number of participants
+
+ - client should display debts owed somewhere 
 
 Audio?
 

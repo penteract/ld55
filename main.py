@@ -6,7 +6,8 @@ import time
 import json
 import random
 
-STATIC_FILES = ["/index.html", "/", "/render.js", "/gameloop.js","/serverComms.js", "/style.css"]
+STATIC_FILES = ["/index.html", "/", "/render.js", "/gameloop.js",
+                "/serverComms.js", "/style.css", "/summoningCircle.png"]
 
 TICK_TIME = 10
 
@@ -14,7 +15,7 @@ TICK_TIME = 10
 class Handler(SimpleHTTPRequestHandler):
     """subclassing seems the simplest way to send files"""
 
-    def send_string(self, s, hs={"Content-Type":"text/plain; charset=utf-8"}):
+    def send_string(self, s, hs={"Content-Type": "text/plain; charset=utf-8"}):
         self.send_response(200, "okay")
         b = bytes(s, "utf-8")
         self.send_header("Content-Length", str(len(b)))
@@ -47,11 +48,11 @@ class Handler(SimpleHTTPRequestHandler):
         elif url.path == "/setPlan":
             qs = parse_qs(urlparse(self.path).query)
             if ("name" not in qs) or len(qs["name"]) != 1:
-                self.send_error(400,"No name")
+                self.send_error(400, "No name")
                 return
             elif not (d := game.Demon.demons.get(name := qs["name"][0])):
                 print("Couldn't find ", name, game.Demon.demons)
-                self.send_error(400,"Unknown Name")
+                self.send_error(400, "Unknown Name")
                 return
             if "tick" not in qs or len(qs["tick"]) != 1 or qs["tick"][0] != str(game.time):
                 print(game.time)
@@ -69,7 +70,7 @@ class Handler(SimpleHTTPRequestHandler):
                     self.send_error(400, "No Target")
                     return
                 target = qs["target"][0]
-                if plan=="request" and target=="Unknown":
+                if plan == "request" and target == "Unknown":
                     target = random.choice(game.Demon.dList)
                 d.plan_target = target
             d.plan = plan
@@ -89,11 +90,11 @@ class Handler(SimpleHTTPRequestHandler):
         elif url.path == "/update":
             qs = parse_qs(urlparse(self.path).query)
             if ("name" not in qs) or len(qs["name"]) != 1:
-                self.send_error(400,"No name")
+                self.send_error(400, "No name")
                 print(qs)
             elif (name := qs["name"][0]) not in game.Demon.demons:
                 print(name, game.Demon.demons)
-                self.send_error(400,"Unknown Name")
+                self.send_error(400, "Unknown Name")
             else:
                 dat = game.build_data(game.Demon.demons[name])
                 headers = {}

@@ -30,26 +30,31 @@ function drawClock(ticks = 0) {
 clockTimeout = null
 function startClock(timeleft) {
     // drawClock(maxtime) should be called exactly when timeleft hits 0
-    ticks = (MAX_TIME - timeleft+0.99)|0
+    ticks = (MAX_TIME - timeleft + 0.99) | 0
     if (clockTimeout) {
         window.clearInterval(clockTimeout)
     }
     function runTick() {
         ticks += 1
         drawClock(ticks)
-        if (ticks<MAX_TIME){
-            clockTimeout = window.setTimeout(runTick,1000)
+        if (ticks < MAX_TIME) {
+            clockTimeout = window.setTimeout(runTick, 1000)
         }
     }
     drawClock(ticks)
-    if (ticks<MAX_TIME){
-        clockTimeout = window.setTimeout(runTick, 1000*(MAX_TIME - timeleft+0.99 - ticks))
+    if (ticks < MAX_TIME) {
+        clockTimeout = window.setTimeout(runTick, 1000 * (MAX_TIME - timeleft + 0.99 - ticks))
     }
 }
 
 function renderDemon(demon, highlight) {
+    if (demon.circle !== undefined) {
+        return renderSummoningCircle(demon.circle, highlight)
+    }
+
     let elt = document.createElement("div")
     elt.classList.add("demon")
+    elt.classList.add("fightParticipant")
     if (demon.human) {
         elt.classList.add("human")
     }
@@ -112,6 +117,31 @@ function renderDemonImg(demon, canvas) {
     }
 }
 
+function renderSummoningCircle(summoner, highlight) {
+    let elt = document.createElement("div")
+    elt.classList.add("summoningCircle")
+    elt.classList.add("fightParticipant")
+
+    if (summoner.name === highlight) {
+        elt.classList.add("highlight")
+    }
+
+    let imgElt = document.createElement("canvas")
+    imgElt.classList.add("summoningCircleImg")
+    renderSummoningCircleImg(imgElt)
+    elt.appendChild(imgElt)
+
+    return elt
+}
+
+function renderSummoningCircleImg(canvas) {
+    canvas.width = 30
+    canvas.height = 60
+    ctx = canvas.getContext("2d")
+
+    ctx.drawImage(document.getElementById("summoningCircleBaseImg"), 0, 50, 30, 10)
+}
+
 function renderFightSide(side, left = true, highlight) {
     let sideElt = document.createElement("div")
     sideElt.classList.add("fightSide")
@@ -168,7 +198,7 @@ function renderInvitation(inv) {
 
     let fightElt = renderFight(fight, name)
     elt.appendChild(fightElt)
-    elt.addEventListener("click",e=>act(elt,"answer",name))
+    elt.addEventListener("click", e => act(elt, "answer", name))
 
     // TODO: the height of this elt is messed up without setting its hight to constant within css...
 
@@ -199,7 +229,7 @@ function renderSummon(summon) {
     countElt.classList.add("summonCount")
     countElt.textContent = "x " + count
     elt.appendChild(countElt)
-    elt.addEventListener("click",e=>act(elt,"summon",demonName))
+    elt.addEventListener("click", e => act(elt, "summon", demonName))
     return elt
 }
 
@@ -219,7 +249,7 @@ function renderPossibleRequest(demonName) {
 
     let demonElt = renderDemon(lookupDemon(demonName))
     elt.appendChild(demonElt)
-    elt.addEventListener("click",e=>act(elt,"request",demonName))
+    elt.addEventListener("click", e => act(elt, "request", demonName))
     return elt
 }
 
@@ -233,7 +263,7 @@ function renderPossibleRequests() {
         }
     }
 }
-function clearSelected(){
+function clearSelected() {
     selected = document.getElementsByClassName("selected")
     for (sel of selected) {
         sel.classList.remove("selected")

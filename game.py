@@ -46,7 +46,7 @@ class FightSide:
         if self.front is None:
             assert self.back is None
             return True
-        assert self.back is not None
+        assert self.back is not None, (self, list(self), self.front, self.back)
         return False
 
     def __bool__(self):
@@ -112,7 +112,7 @@ class Fight:
         for side in [self.side0, self.side1]:
             for d in list(side):
                 d.remove()
-                if not d.acted:
+                if isinstance(d, Demon) and not d.acted:
                     d.plan = "wait"
                 # (Toby: knowing the old plan might be helpful for UI)
             assert side.empty()
@@ -122,7 +122,100 @@ class Fight:
     def __str__(self):
         return repr(self)+str(self.side0)+"vs"+str(self.side1)
 
-class Demon():
+
+class LinkedListElt():
+    def __init__(self):
+        self.next = None
+        self.prev = None
+        self.side = 2
+        self.fight = None
+
+    def insert_after(self, summoner, fight=None, side=None):
+        assert self.fight is None
+        if summoner is None:
+            self.next = fight[side].back
+            fight[side].back = self
+        else:
+            if fight is not None or side is not None:
+                assert summoner.fight == fight
+                assert summoner.side == side
+            else:
+                fight = summoner.fight
+                side = summoner.side
+            self.next = summoner.next
+            summoner.next = self
+        self.prev = summoner
+        if self.next is not None:
+            self.next.prev = self
+        else:
+            fight[side].front = self
+        self.fight = fight
+        self.side = side
+
+    def remove(self):
+        """remove self from the linked list that is its fight"""
+        assert self.fight is not None
+        if self.prev is None:
+            assert self.fight[self.side].back is self
+            self.fight[self.side].back = self.next
+        else:
+            self.prev.next = self.next
+        if self.next is not None:
+            self.next.prev = self.prev
+        else:
+            self.fight[self.side].front = self.prev
+
+        self.fight = None
+        self.next = None
+        self.prev = None
+        self.side = 2
+
+    def replace(self, elt):
+        assert elt.fight is None
+        elt.next = self.next
+        elt.prev = self.prev
+        elt.fight = self.fight
+        elt.side = self.side
+
+        if self.prev is None:
+            self.fight[self.side].back = elt
+        else:
+            self.prev.next = elt
+
+        if self.next is None:
+            self.fight[self.side].front = elt
+        else:
+            self.next.prev = elt
+
+        self.next = None
+        self.prev = None
+        self.fight = None
+        self.side = 2
+
+
+class SummoningCircle(LinkedListElt):
+    def __init__(self, summoner, time):
+        super().__init__()
+
+        self.summoner = summoner
+        self.time = time
+        self.name = f"{summoner.name}'s summoning circle"
+        self.insert_after(summoner)
+
+    def tick(self):
+        self.time -= 1
+        if self.time <= 0:
+            self.remove()
+
+    def serialize(self):
+        return {"circle": self.summoner.serialize()}
+
+    def hit(self):
+        if self.prev:
+            self.prev.hit()
+
+
+class Demon(LinkedListElt):
     demons = {}
     summons = dset()
     looking = dset()
@@ -134,6 +227,8 @@ class Demon():
         return res
 
     def __init__(self):
+        super().__init__()
+
         # Fixed data
         name = names.randname()
         while name in Demon.demons:
@@ -154,12 +249,7 @@ class Demon():
         self.owes = defaultdict(int)
 
         # fight data
-        self.fight = None
         self.health = MAXHEALTH
-        self.side = 2
-        # The line is a linked list
-        self.next = None
-        self.prev = None
 
         self.dead = False
 
@@ -171,54 +261,9 @@ class Demon():
 
     def init_tick(self):
         self.last_requests = self.requests
-        self.requests = []
-        self.targeting = dset()  # Demons that are about to appear in front of this one
+        self.requests = {}
         self.summoner = None
         self.acted = False
-
-    def remove(self):
-        """remove self from the linked list that is its fight"""
-        assert self.fight is not None
-        if self.prev is None:
-            assert self.fight[self.side].back is self
-            self.fight[self.side].back = self.next
-        else:
-            self.prev.next = self.next
-        if self.next is not None:
-            self.next.prev = self.prev
-        else:
-            self.fight[self.side].front = self.prev
-        while self.targeting:
-            self.targeting.pop().set_target(self.prev)
-        self.fight = None
-        self.next = None
-        self.prev = None
-        self.side = 2
-
-    def insert_after(self, summoner, fight, side):
-        assert self.fight is None
-        if summoner is None:
-            self.next = fight[side].back
-            fight[side].back = self
-        else:
-            assert summoner.fight == fight
-            assert summoner.side == side
-            self.next = summoner.next
-            summoner.next = self
-        self.prev = summoner
-        if self.next is not None:
-            self.next.prev = self
-        else:
-            fight[side].front = self
-        self.fight = fight
-        self.side = side
-
-    def set_target(self, other):
-        """change the target location of a summoning"""
-        if other is not None:
-            assert other.fight is self.summoner[1]
-            other.targeting.add(self)
-        self.summoner[0] = other
 
     def die(self):
         print("Demon died!", self.name)
@@ -253,22 +298,20 @@ class Demon():
         other.owes[self.name] -= 1
         assert self.owes[other.name] == other.owed[self.name]
 
-    def try_summon(self, other):
+    def try_summon(self, other, circle):
         """enact a Summon, unless the actor is not older than someone else trying to summon the same demon in the same tick"""
         s = other.summoner
-        if s is None or s[0] is None or s[0].born > self.born:
-            if s is not None and s[0] is not None:
-                s[0].targeting.remove(other)
-            other.summoner = [self, self.fight, self.side]
-            other.set_target(self)
+        if s is None or s.summoner.born > self.born:
+            other.summoner = circle
             if s is None:
                 Demon.summons.add(other)
 
     def answer(self):
         assert self.plan_target in self.last_requests
         d = Demon.demons.get(self.plan_target)
-        if d is not None and d.fight:  # the fight may be over or d may be dead
-            d.try_summon(self)
+        circle = self.last_requests[self.plan_target]
+        if d is not None and circle.fight:  # the fight may be over
+            d.try_summon(self, circle)
             self.be_owed_debt_by(d)
 
     def act(self):
@@ -294,7 +337,7 @@ class Demon():
             elif self.plan == "request":
                 d = Demon.demons.get(self.plan_target)
                 if d is not None and d != self:
-                    d.requests.append(self.name)
+                    d.requests[self.name] = SummoningCircle(self, 2)
                 else:
                     self.plan = "request2"  # avoid forcing request2 to happen next turn
             elif self.plan == "request2":
@@ -304,13 +347,13 @@ class Demon():
             elif self.plan == "summon":
                 d = Demon.demons.get(self.plan_target)
                 if d is not None and self.owed[self.plan_target] >= 1:
-                    self.try_summon(d)
+                    self.try_summon(d, SummoningCircle(self, 1))
                     # should the debt still be canceled if the summon fails due to someone else summoning in the same tick?
                     self.cancel_debt_owed_by(d)
             elif self.plan == "concede":
                 if self == self.fight[self.side].back:
                     opp = self.fight.opp(self.side).back
-                    if opp is not None:
+                    if isinstance(opp, Demon):
                         self.owe_debt_to(opp)
                         self.fight.end()
                         # jfb: ending the fight in the middle of the fight could mess with pending summons. test what happens (get summoned into an empty fight?)
@@ -320,7 +363,7 @@ class Demon():
                 raise Exception("Bad Plan")
 
     def create_plan(self):
-        abstract
+        raise Exception("abstract")
 
     def __str__(self):
         return "The Demon "+self.name
@@ -334,7 +377,7 @@ class AI(Demon):
         if self.requests:
             if random() < 0.75:
                 self.plan = "answer"
-                self.plan_target = choice(self.requests)
+                self.plan_target = choice(list(self.requests))
                 return
 
         if self.fight is None:
@@ -374,7 +417,7 @@ def tick():
     time += 1
     Demon.summons = dset()
     Demon.looking = dset()
-    Demon.dList=None
+    Demon.dList = None
 
     for fight in list(Fight.fights):
         print(fight)
@@ -391,18 +434,24 @@ def tick():
 
     # handle summons
     for summoned in Demon.summons:
-        if not summoned.dead and summoned.summoner[1] in Fight.fights:
+        if not summoned.dead and summoned.summoner.fight in Fight.fights:
+            circle = summoned.summoner
             # Toby: Consider making a priority queue of summonings
-            print(summoned, "summoned by", summoned.summoner[0], "in fight", repr(
-                summoned.summoner[1]), summoned.summoner[1])
+            print(summoned, "summoned by", circle.summoner,
+                  "in fight", circle.fight)
             if summoned.fight is not None:
                 summoned.remove()
             print(summoned, "summoned by",
-                  summoned.summoner[0], "in fight", repr(summoned.summoner[1]))
-            summoned.insert_after(*summoned.summoner)
+                  circle.summoner, "in fight", repr(circle.fight))
+            circle.replace(summoned)
     Demon.summons = []
 
     for fight in list(Fight.fights):
+        for side in [fight.side0, fight.side1]:
+            for elt in list(side):
+                if isinstance(elt, SummoningCircle):
+                    elt.tick()
+
         if fight.side0.empty() or fight.side1.empty():
             # TODO: pay out any rewards for winning fights? (score at least)
             fight.end()
@@ -413,8 +462,8 @@ def tick():
     if len(Demon.demons) < MIN_DEMONS:
         for i in range((MIN_DEMONS+10 - len(Demon.demons))//10):
             AI()
-    #makes it faster to pick a random demon
-    Demon.dList=list(Demon.demons)
+    # makes it faster to pick a random demon
+    Demon.dList = list(Demon.demons)
 
     # AIs make their choices based on the info they have at the start of the turn (now)
     for d in Demon.demons.values():

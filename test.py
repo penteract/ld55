@@ -2,12 +2,13 @@ import sys
 import game
 from random import random, choice, seed
 
+
 class TestAI(game.AI):
     def create_plan(self):
         if self.requests:
             if random() < 0.75:
                 self.plan = "answer"
-                self.plan_target = choice(self.requests)
+                self.plan_target = choice(list(self.requests))
                 return
 
         if self.fight is None:
@@ -36,24 +37,23 @@ class TestAI(game.AI):
 
 game.AI = TestAI
 
-num_iters=10
-num_demons=10
+num_iters = 10
+num_demons = 10
 usage = """python test.py [num_iters [num_demons]]"""
 
-if __name__=="__main__":
-    if len(sys.argv)>1:
+if __name__ == "__main__":
+    if len(sys.argv) > 1:
         try:
             num_iters = int(sys.argv[1])
-            if len(sys.argv)==3:
+            if len(sys.argv) == 3:
                 num_demons = int(sys.argv[2])
-            elif len(sys.argv)>3:
+            elif len(sys.argv) > 3:
                 raise Exception("Too many arguments")
-        except e:
-            print(usage,file=sys.stderr)
+        except Exception as e:
+            print(usage, file=sys.stderr)
             raise e
     seed(100)
     game.init(num_demons)
-
 
     for i in range(num_iters):
         game.tick()
