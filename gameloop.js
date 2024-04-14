@@ -1,4 +1,3 @@
-myName = "qith"
 
 function requestInfo() {
     startClock()
@@ -115,6 +114,11 @@ function lookupDemon(demonName) {
 function isKnownDemonName(demonName) {
     return knownDemons[demonName] !== undefined
 }
-
+myName=undefined
+truename=undefined
 //Initialization
-requestInfo()
+fetch("./newDemon",{"method":"POST"}).then(r=>r.text()).then(txt=>{
+    [myName,truename]=txt.split("\n")
+    requestInfo()
+})
+
