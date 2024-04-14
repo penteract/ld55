@@ -66,22 +66,25 @@ body{
 }
 
 .fightSide {
-    border: 1px solid red;
+    /*border: 1px solid red;*/
     height: 100%;
     text-align: end;
     width: 40%;
+    display:inline-block;
+    vertical-align:top;
+}
+.fightSideLeft {
+    direction:rtl
+}
+.noMansLand{
+    display:inline-block;
+    width:20%;
 }
 #invitations .fightSide{
     width:45%
 }
-
-.fightSideLeft {
-    float: left;
-    direction:rtl
-}
-
-.fightSideRight {
-    float: right;
+#invitations .noMansLand{
+    width:10%;
 }
 /*Mark where the front of a side is*/
 .fightSide::before{
@@ -123,13 +126,6 @@ body{
 
 .hidden {
     display: none;
-}
-
-.invitation {
-    height: 200px;
-    /* TODO: why is this necassary... 
-    without this, height is 0 (despite containing children with nonzero height)
-    find a way to do this that doesn't require a fixed height? */
 }
 
 .summonCount {
