@@ -110,7 +110,7 @@ class Handler(SimpleHTTPRequestHandler):
 
 
 if __name__ == "__main__":
-    game.init(10)
+    game.init(100)
     with HTTPServer(("localhost", 8080), Handler) as httpd:
         global last_tick
         last_tick = time.time()
