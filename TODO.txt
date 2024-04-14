@@ -24,3 +24,7 @@ Prepare and submit the game
   - Screenshots
   - add authors on ldjam.com (we need to Follow each other)
   - Title "You can be summoned"
+
+
+  BUGS:
+  without accepting invitations being implemented, hrechnexgraw ended up able to summon something.
