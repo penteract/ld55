@@ -43,15 +43,18 @@ class Handler(SimpleHTTPRequestHandler):
         url = urlparse(self.path)
         if url.path == "/newDemon":
             newPlayer = game.Player()
-            self.send_string(newPlayer.name+"\n"+game.names.randname())
+            self.send_string(newPlayer.name+"\n"+newPlayer.truename)
             print("new Player", newPlayer)
         elif url.path == "/setPlan":
             qs = parse_qs(urlparse(self.path).query)
             if ("name" not in qs) or len(qs["name"]) != 1:
                 self.send_error(400, "No name")
                 return
-            elif not (d := game.Demon.demons.get(name := qs["name"][0])):
-                print("Couldn't find ", name, game.Demon.demons)
+            if ("truename" not in qs) or len(qs["truename"]) != 1:
+                self.send_error(400, "No truename")
+                return
+            elif not (d := game.Player.players.get((name := qs["name"][0]), truename:=qs["truename"][0]) ):
+                print("Couldn't find ", name, truename, game.Player.players)
                 self.send_error(400, "Unknown Name")
                 return
             if "tick" not in qs or len(qs["tick"]) != 1 or qs["tick"][0] != str(game.time):
@@ -92,11 +95,15 @@ class Handler(SimpleHTTPRequestHandler):
             if ("name" not in qs) or len(qs["name"]) != 1:
                 self.send_error(400, "No name")
                 print(qs)
-            elif (name := qs["name"][0]) not in game.Demon.demons:
-                print(name, game.Demon.demons)
+            if ("truename" not in qs) or len(qs["truename"]) != 1:
+                self.send_error(400, "No truename")
+                return
+            elif not (d := game.Player.players.get((name := qs["name"][0], truename:=qs["truename"][0]))):
+                print("Couldn't find ", name, truename, game.Player.players)
                 self.send_error(400, "Unknown Name")
             else:
-                dat = game.build_data(game.Demon.demons[name])
+                print(d,game.Player.players)
+                dat = game.build_data(d)
                 headers = {}
                 headers["Content-Type"] = "application/json; charset=utf-8"
                 dat["nexttick"] = (last_tick - time.time() + TICK_TIME + 0.1)

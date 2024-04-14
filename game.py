@@ -449,6 +449,11 @@ class AI(Demon):
 
 
 class Player(Demon):
+    players={}
+    def __init__(self,*args):
+        super().__init__(*args)
+        self.truename=names.randname()
+        Player.players[(self.name,self.truename)] = self
     def create_plan(self):
         self.plan = "fire" if self.fight else "wait"
     def init_tick(self):
