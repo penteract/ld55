@@ -116,9 +116,9 @@ function renderFightSide(side, left = true, highlight) {
     let sideElt = document.createElement("div")
     sideElt.classList.add("fightSide")
     sideElt.classList.add(left ? "fightSideLeft" : "fightSideRight")
-
+    side = side.map(i => i).reverse() // Do this so that the target of attacks is always on the top line
     /*if (!left) {
-        side = side.map(i => i).reverse()
+
     }*/
 
     for (let demon of side) {

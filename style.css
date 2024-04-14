@@ -64,34 +64,23 @@ body{
 .fightSide {
     border: 1px solid red;
     height: 100%;
+    text-align: end;
 }
 
 .fightSideLeft {
     width: 40%;
-    float: left
+    float: left;
+    direction:rtl
 }
 
 .fightSideRight {
     width: 40%;
     float: right;
-    text-align: right;
 }
-.fightSide::after{
-    content:"<-";
+/*Mark where the front of a side is*/
+.fightSide::before{
+    content:"->";
 }
-
-.fightSideRight{
-    direction:rtl
-}
-
-/*RLO - this makes wrapping work symettrically. reflecting the whole thing might work better
-.fightSideRight::before {
-    content:"‮";
-}
-.fightSideRight::after {
-    content:"<-‬";
-}
-PDF*/
 
 .fightSideLeft.demon {
     float: left
