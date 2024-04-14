@@ -26,7 +26,7 @@ Consider changing the rules/strategy
 
 Prepare and submit the game
   - Screenshots
-  - add authors on ldjam.com (we need to Follow each other)
+  //- add authors on ldjam.com (we need to Follow each other)
   - Title "You can be summoned"
 
 
