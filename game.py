@@ -196,10 +196,11 @@ class LinkedListElt():
 class SummoningCircle(LinkedListElt):
     def __init__(self, summoner, time):
         super().__init__()
-
-        self.summoner = summoner
+        self.summoner_name = summoner.name
+        self.name="circle of "+summoner.name
+        self.summoner_born = summoner.born
         self.time = time
-        self.name = f"{summoner.name}'s summoning circle"
+        #self.name = f"{summoner.name}'s summoning circle"
         self.insert_after(summoner)
 
     def tick(self):
@@ -208,11 +209,19 @@ class SummoningCircle(LinkedListElt):
             self.remove()
 
     def serialize(self):
-        return {"circle": self.summoner.serialize()}
+        return {"circle": {"name": self.summoner_name}}
 
     def hit(self):
         if self.prev:
             self.prev.hit()
+
+    def try_summon(self, summonee):
+        """enact a Summon, unless the creator of the circle is not older than someone else trying to summon the same demon in the same tick"""
+        c = summonee.circle
+        if c is None or c.summoner_born > self.summoner_born:
+            summonee.circle = self
+            if c is None:
+                Demon.summons.add(summonee)
 
 
 class Demon(LinkedListElt):
@@ -262,7 +271,7 @@ class Demon(LinkedListElt):
     def init_tick(self):
         self.last_requests = self.requests
         self.requests = {}
-        self.summoner = None
+        self.circle = None
         self.acted = False
         self.summoned_this_turn = False
 
@@ -299,20 +308,12 @@ class Demon(LinkedListElt):
         other.owes[self.name] -= 1
         assert self.owes[other.name] == other.owed[self.name]
 
-    def try_summon(self, other, circle):
-        """enact a Summon, unless the actor is not older than someone else trying to summon the same demon in the same tick"""
-        s = other.summoner
-        if s is None or s.summoner.born > self.born:
-            other.summoner = circle
-            if s is None:
-                Demon.summons.add(other)
-
     def answer(self):
         assert self.plan_target in self.last_requests
-        d = Demon.demons.get(self.plan_target)
-        circle = self.last_requests[self.plan_target]
+        d = Demon.demons.get(self.plan_target) # We can count on this being the same demon that initiated the summoning if it's in a fight, since a newly born demon with the same name wouldn't have had a chance to enter a fight.
+        circle = self.last_requests.get(self.plan_target)
         if d is not None and circle.fight:  # the fight may be over
-            d.try_summon(self, circle)
+            circle.try_summon(self)
             self.be_owed_debt_by(d)
 
     def act(self):
@@ -348,7 +349,7 @@ class Demon(LinkedListElt):
             elif self.plan == "summon":
                 d = Demon.demons.get(self.plan_target)
                 if d is not None and self.owed[self.plan_target] >= 1:
-                    self.try_summon(d, SummoningCircle(self, 1))
+                    SummoningCircle(self, 1).try_summon(d)
                     # should the debt still be canceled if the summon fails due to someone else summoning in the same tick?
                     self.cancel_debt_owed_by(d)
             elif self.plan == "concede":
@@ -435,15 +436,15 @@ def tick():
 
     # handle summons
     for summoned in Demon.summons:
-        if not summoned.dead and summoned.summoner.fight in Fight.fights:
-            circle = summoned.summoner
+        if not summoned.dead and summoned.circle.fight in Fight.fights:
+            circle = summoned.circle
             # Toby: Consider making a priority queue of summonings
-            print(summoned, "summoned by", circle.summoner,
+            print(summoned, "summoned by", circle.summoner_name,
                   "in fight", circle.fight)
             if summoned.fight is not None:
                 summoned.remove()
             print(summoned, "summoned by",
-                  circle.summoner, "in fight", repr(circle.fight))
+                  circle.summoner_name, "in fight", repr(circle.fight))
             circle.replace(summoned)
             summoned.summoned_this_turn = True
     Demon.summons = []

@@ -62,7 +62,7 @@ class Handler(SimpleHTTPRequestHandler):
                 self.send_error(400, "No Plan")
                 return
             plan = qs["plan"][0]
-            if plan not in [["wait", "look", "answer"], ["fire", "request", "summon", "request2", "answer"]][bool(d.fight)]:
+            if plan not in [["wait", "look", "answer"], ["fire", "request", "summon", "request2", "answer", "concede"]][bool(d.fight)]:
                 self.send_error(400, "bad plan")
                 return
             elif plan in ["answer", "request", "summon"]:
