@@ -101,7 +101,10 @@ function renderDemonImg(demon, canvas) {
     }
 
     if (demon.summoned_this_turn) {
-        ctx.drawImage(document.getElementById("summoningCircleBaseImg"), 0, 42, 30, 10)
+        ctx.scale(1,1/3)
+        drawPentegram(ctx,canvas.width/2,(canvas.height-10)*3-15 ,15)
+        ctx.resetTransform()
+        //ctx.drawImage(document.getElementById("summoningCircleBaseImg"), 0, 42, 30, 10)
     }
 
     base = 50
@@ -143,8 +146,10 @@ function renderSummoningCircleImg(canvas) {
     canvas.width = 30
     canvas.height = 60
     ctx = canvas.getContext("2d")
+    ctx.scale(1,1/3)
+    drawPentegram(ctx,canvas.width/2,(canvas.height-10)*3-15,15)
 
-    ctx.drawImage(document.getElementById("summoningCircleBaseImg"), 0, 50, 30, 10)
+    /*ctx.drawImage(document.getElementById("summoningCircleBaseImg"), 0, 50, 30, 10)*/
 }
 
 function renderFightSide(side, left = true, highlight) {
@@ -303,5 +308,15 @@ function showBaseActions(inFight) {
         fightActs.classList.add("hidden")
         nonFightActs.classList.remove("hidden")
         selfDemon.classList.remove("hidden")
+    }
+}
+
+function drawPentegram(ctx,x,y,r){
+    ctx.strokeStyle="red"
+    for (i=0;i<5;i++){
+        ctx.beginPath()
+        ctx.arc(x,y,r,i*(Math.PI*2/5)-Math.PI/2,(i+2)*(Math.PI*2/5)-Math.PI/2)
+        ctx.closePath()
+        ctx.stroke()
     }
 }
