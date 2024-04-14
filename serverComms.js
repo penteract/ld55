@@ -19,7 +19,7 @@ function defaultErrorCallback(status, resp) {
 
 function act(obj,plan,target){
     url = `./setPlan?name=${myName}&truename=${truename}&tick=${lastDataTick}&plan=${plan}`
-    if (target!==undefined) {url+="&resp.target="+target;}
+    if (target!==undefined) {url+="&target="+target;}
     fetch(url, {"method":"POST"}).then(()=>{
         renderSelectAct(obj)
         clearTempSelectAct(obj)

@@ -122,7 +122,6 @@ class Fight:
     def __str__(self):
         return repr(self)+str(self.side0)+"vs"+str(self.side1)
 
-
 class Demon():
     demons = {}
     summons = dset()
@@ -355,7 +354,7 @@ class AI(Demon):
 
         if random() < 0.5:
             self.plan = "request"
-            self.plan_target = choice(list(Demon.demons))
+            self.plan_target = choice(Demon.dList)
             if self.plan_target is not self:
                 return
 
@@ -375,6 +374,7 @@ def tick():
     time += 1
     Demon.summons = dset()
     Demon.looking = dset()
+    Demon.dList=None
 
     for fight in list(Fight.fights):
         print(fight)
@@ -413,6 +413,8 @@ def tick():
     if len(Demon.demons) < MIN_DEMONS:
         for i in range((MIN_DEMONS+10 - len(Demon.demons))//10):
             AI()
+    #makes it faster to pick a random demon
+    Demon.dList=list(Demon.demons)
 
     # AIs make their choices based on the info they have at the start of the turn (now)
     for d in Demon.demons.values():

@@ -4,6 +4,7 @@ from urllib.parse import urlparse, parse_qs
 import game
 import time
 import json
+import random
 
 STATIC_FILES = ["/index.html", "/", "/render.js", "/gameloop.js","/serverComms.js", "/style.css"]
 
@@ -67,7 +68,10 @@ class Handler(SimpleHTTPRequestHandler):
                 if "target" not in qs or len(qs["target"]) != 1:
                     self.send_error(400, "No Target")
                     return
-                d.plan_target = qs["target"][0]
+                target = qs["target"][0]
+                if plan=="request" and target=="Unknown":
+                    target = random.choice(game.Demon.dList)
+                d.plan_target = target
             d.plan = plan
             self.empty_ok()
         else:
