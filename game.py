@@ -88,6 +88,8 @@ class Fight:
     def __init__(self):
         self.side0 = FightSide()
         self.side1 = FightSide()
+        self.status = "ongoing"
+        self.loser = None
         Fight.fights.add(self)
 
     def init_tick(self):
@@ -110,15 +112,18 @@ class Fight:
         """Serialization of what happened on the most recent turn"""
         self.long_data = [[x.long_serialize() for x in side] for side in self.sidesAtStart]
         self.sidesAtStart=None
+
     def long_serialize(self):
-        return self.long_data
+        return {"sides": self.long_data,
+                "status":self.status,
+                "loser":self.loser}
 
     def serialize(self):
         """Serialization of the current state"""
         return [side.serialize() for side in [self.side0, self.side1]]
 
-    def end(self):
-        print("Fight ended!", [d.name for d in self.side0], [
+    def end(self,reason,loser):
+        print("Fight ended! because",reason, [d.name for d in self.side0], [
               d.name for d in self.side1])
         for side in [self.side0, self.side1]:
             for d in list(side):
@@ -127,6 +132,8 @@ class Fight:
                     d.plan = "wait"
                 # (Toby: knowing the old plan might be helpful for UI)
             assert side.empty()
+        self.status = reason
+        self.loser = loser
         print("removing", self)
         Fight.fights.remove(self)
 
@@ -229,6 +236,7 @@ class SummoningCircle(LinkedListElt):
         r = self.serialize()
         r["type"]="circle"
         if self.summoning: r["summoning"]=self.summoning.serialize()
+        return r
 
     def hit(self):
         if self.prev:
@@ -265,6 +273,7 @@ class Demon(LinkedListElt):
         r["type"]="demon"
         if self.fired: r["fired"]=self.fired.name
         if self.summoning: r["summoning"]=self.summoning.serialize()
+        return r
 
     def __init__(self):
         super().__init__()
@@ -399,7 +408,7 @@ class Demon(LinkedListElt):
                     opp = self.fight.opp(self.side).back
                     if isinstance(opp, Demon):
                         self.owe_debt_to(opp)
-                        self.fight.end()
+                        self.fight.end("concede",self.side)
                         # jfb: ending the fight in the middle of the fight could mess with pending summons. test what happens (get summoned into an empty fight?)
                         # Toby: This should be handled by setting summoner.fight to None in d.remove()
 
@@ -469,16 +478,16 @@ class Player(Demon):
         return c
     def build_data(self):
         result = self.serialize()
-        if self.fight is None:
-            result["fight"] = None
-        else:
-            result["fight"] = self.fight.serialize()
+        if self.initial_fight is not None:
+            result["initialFight"] = self.initial_fight.long_serialize()
         result["requests"] = []
         for name in self.requests:
             if (req := Demon.demons.get(name)) and req.fight:
                 result["requests"].append((name, req.fight.serialize()))
         result["owed"] = [(k, c) for k, c in self.owed.items() if c >= 1]
-        result["changedFight"] = False
+        result["changedFight"] = (self.fight is not self.initial_fight)
+        if result["changedFight"] and self.fight is not None:
+            result["newFight"] = self.fight.serialize()
         result["tick"] = time
         return result
 
@@ -540,7 +549,7 @@ def tick():
 
         if fight.side0.empty() or fight.side1.empty():
             # TODO: pay out any rewards for winning fights? (score at least)
-            fight.end()
+            fight.end("side eliminated",int(fight.side1.empty()))
 
     find_matchups()
 
@@ -602,10 +611,10 @@ type demon = { name:string,
         }
 type circle = {
         type:"circle",
-        summoned?:"circle"|demon,
+        summoning?:"circle"|demon,
         }
 type side = [demon+{
-        summoned?:"circle"|demon,
+        summoning?:"circle"|demon,
         died:boolean,
         fired: null|string,
         moved:boolean,

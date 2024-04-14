@@ -103,7 +103,7 @@ class Handler(SimpleHTTPRequestHandler):
                 self.send_error(400, "Unknown Name")
             else:
                 print(d,game.Player.players)
-                dat = game.build_data(d)
+                dat = d.build_data()
                 headers = {}
                 headers["Content-Type"] = "application/json; charset=utf-8"
                 dat["nexttick"] = (last_tick - time.time() + TICK_TIME + 0.1)

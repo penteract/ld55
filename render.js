@@ -186,10 +186,43 @@ function renderFight(fight, highlight = null) {
     return elt
 }
 
-function renderMainFight(fight) {
+function renderMainFightSide(side, left = true) {
+    let sideElt = document.createElement("div")
+    sideElt.classList.add("fightSide")
+    sideElt.classList.add(left ? "fightSideLeft" : "fightSideRight")
+    side = side.map(i => i).reverse() // Do this so that the target of attacks is always on the top line
+
+    for (let demon of side) {
+        let demonElt = renderDemon(demon)
+        sideElt.appendChild(demonElt)
+    }
+
+    return sideElt
+}
+
+function renderMainFight(initialFight,newFight) {
     let mainFightElt = document.getElementById("mainFight")
     mainFightElt.innerHTML = ""
-    mainFightElt.appendChild(renderFight(fight))
+    //mainFightElt.appendChild(renderFight(fight))
+    let elt = document.createElement("div")
+    elt.classList.add("fight")
+
+    let leftSide = renderMainFightSide(initialFight[0], true)
+    elt.appendChild(leftSide)
+
+    let noMansLand = document.createElement("div")
+    noMansLand.classList.add("noMansLand")
+    elt.appendChild(noMansLand)
+
+    let rightSide = renderMainFightSide(initialFight[1], false)
+    elt.appendChild(rightSide)
+    //Render a new fight on top of the old one
+    if(newFight){
+        let newF = renderFight(newFight)
+        newF.classList.add("newFight")
+        mainFightElt.appendChild(newF)
+    }
+    mainFightElt.appendChild(elt)
 }
 
 function renderSelf(demon) {

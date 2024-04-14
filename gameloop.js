@@ -4,20 +4,22 @@ function requestInfo() {
     let url = "/update?name=" + myName+"&truename="+truename
     httpGetAsync(url, function (resp) {
         resp = JSON.parse(resp)
+        globresp = resp
         let nextTick = +resp.nexttick
         startClock(nextTick)
         clearSelected()
-        let fight = resp.fight
+        let isInFight = resp.newFight!==undefined || resp.initialFight?.status==="ongoing"
 
-        showBaseActions(fight !== null)
+        showBaseActions(isInFight)
 
-        if (fight === null) {
+        if (!isInFight) {
             console.log("No fight!")
-            fight = [[], []]
+        }else{
+            console.log("in fight")
         }
 
         updateKnowledge(resp)
-        renderMainFight(fight)
+        renderMainFight(resp.initialFight?.sides??[[],[]],resp.newFight)
         renderSelf(resp)
         renderInvitations(resp.requests)
         renderSummons(resp.owed)
@@ -35,8 +37,11 @@ function updateKnowledge(resp) {
     let knownFights = []
     knownNames[myName] = 1
 
-    if (resp.fight !== null) {
-        knownFights.push(resp.fight)
+    if (resp.newFight) {
+        knownFights.push(resp.newFight)
+    }
+    if (resp.initialFight) {
+        knownFights.push(resp.initialFight.sides)
     }
 
     for (let name of Object.keys(knownDemons)) {

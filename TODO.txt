@@ -28,6 +28,9 @@ Rendering
 
  - client should display debts owed somewhere 
 
+Graphics
+ - Are we seriously going to leave our demons as 3 circles?
+ - Add some intersting terrain scorch marks and/or bloodstains (particularly in long running battles if we want to persist enough)
 Audio?
 
 Consider changing the rules/strategy
