@@ -35,6 +35,15 @@ Audio?
 
 Consider changing the rules/strategy
   There are many things we could do here but it's not a priority until we can see more about how the game plays.
+  Multiple enemies per fight?
+  healing on kill? healing on successful hide?
+  score - wins, kills, influence
+
+Better AI:
+  key info in fight: demons in front, demons behind, demons on enemy side.
+  if k*front is more than enemies, don't surrender (you'll probably be able to surrender next turn).
+  if front is more than enemies, fire (no reason to waste favours)
+  if your side is losing, try to escape (accept requests)
 
 Prepare and submit the game
   - Screenshots
