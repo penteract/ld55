@@ -53,7 +53,7 @@ class Handler(SimpleHTTPRequestHandler):
             if ("truename" not in qs) or len(qs["truename"]) != 1:
                 self.send_error(400, "No truename")
                 return
-            elif not (d := game.Player.players.get((name := qs["name"][0]), truename:=qs["truename"][0]) ):
+            elif not (d := game.Player.players.get((name := qs["name"][0], truename:=qs["truename"][0]))):
                 print("Couldn't find ", name, truename, game.Player.players)
                 self.send_error(400, "Unknown Name")
                 return
