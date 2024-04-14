@@ -90,6 +90,9 @@ class Fight:
         self.side1 = FightSide()
         Fight.fights.add(self)
 
+    def init_tick(self):
+        self.sidesAtStart = (list(self[0]),list(self[1]))
+
     def __getitem__(self, idx):
         if idx == 0:
             return self.side0
@@ -103,7 +106,15 @@ class Fight:
     def opp(self, idx):
         return self[1-idx]
 
+    def make_data(self):
+        """Serialization of what happened on the most recent turn"""
+        self.long_data = [[x.long_serialize() for x in side] for side in self.sidesAtStart]
+        self.sidesAtStart=None
+    def long_serialize(self):
+        return self.long_data
+
     def serialize(self):
+        """Serialization of the current state"""
         return [side.serialize() for side in [self.side0, self.side1]]
 
     def end(self):
@@ -195,11 +206,14 @@ class LinkedListElt():
 
 class SummoningCircle(LinkedListElt):
     def __init__(self, summoner, time):
-        super().__init__()
+        super().__init__()#
+        self.summoner = summoner
         self.summoner_name = summoner.name
         self.name="circle of "+summoner.name
         self.summoner_born = summoner.born
         self.time = time
+        self.type = time
+        self.summoning=None
         #self.name = f"{summoner.name}'s summoning circle"
         self.insert_after(summoner)
 
@@ -210,6 +224,11 @@ class SummoningCircle(LinkedListElt):
 
     def serialize(self):
         return {"circle": {"name": self.summoner_name}}
+
+    def long_serialize(self):
+        r = self.serialize()
+        r["type"]="circle"
+        if self.summoning: r["summoning"]=self.summoning.serialize()
 
     def hit(self):
         if self.prev:
@@ -222,18 +241,30 @@ class SummoningCircle(LinkedListElt):
             summonee.circle = self
             if c is None:
                 Demon.summons.add(summonee)
+    def replace(self, elt):
+        self.summoner=None
+        return super().replace(elt)
+    def remove(self):
+        self.summoner=None
+        return super().remove()
 
 
 class Demon(LinkedListElt):
     demons = {}
     summons = dset()
     looking = dset()
+    dead_demons = []
 
     def serialize(self):
         res = {}
-        for k in ["name", "power", "score", "health", "plan", "summoned_this_turn"]:
+        for k in ["name", "power", "score", "health", "plan", "summoned_this_turn","dead"]:
             res[k] = getattr(self, k)
         return res
+    def long_serialize(self):
+        r = self.serialize()
+        r["type"]="demon"
+        if self.fired: r["fired"]=self.fired.name
+        if self.summoning: r["summoning"]=self.summoning.serialize()
 
     def __init__(self):
         super().__init__()
@@ -263,18 +294,19 @@ class Demon(LinkedListElt):
         self.dead = False
 
         # transient data (doesn't last longer than a tick)
-        self.requests = []
+        self.requests = {}
         self.plan = "wait"
         self.plan_target = None
         self.init_tick()
 
     def init_tick(self):
+        self.fired=None
+        self.summoning=None
         self.last_requests = self.requests
         self.requests = {}
         self.circle = None
         self.acted = False
         self.summoned_this_turn = False
-
     def die(self):
         print("Demon died!", self.name)
         self.remove()
@@ -288,11 +320,17 @@ class Demon(LinkedListElt):
         Demon.demons.pop(self.name)
         self.requests = []
         self.last_requests = []
+        Demon.dead_demons.append(self) # for cleanup next tick
+    def cleanup(self):
+        assert self.dead
+        self.init_tick()
+        self.last_requests={}
 
     def hit(self):
         self.health -= 1
         if self.health <= 0:
             self.die()
+        return self
 
     def owe_debt_to(self, other):
         self.owes[other.name] += 1
@@ -315,6 +353,9 @@ class Demon(LinkedListElt):
         if d is not None and circle.fight:  # the fight may be over
             circle.try_summon(self)
             self.be_owed_debt_by(d)
+    def make_circle(self,n):
+        c = SummoningCircle(self,n)
+        return c
 
     def act(self):
         """Perform a planned action"""
@@ -327,7 +368,7 @@ class Demon(LinkedListElt):
             elif self.plan == "look":
                 Demon.looking.add(self)
             elif self.plan == "answer":
-                self.answer()
+                return self.answer()
             else:
                 raise Exception("Bad Plan: ", self.plan)
         else:
@@ -339,7 +380,8 @@ class Demon(LinkedListElt):
             elif self.plan == "request":
                 d = Demon.demons.get(self.plan_target)
                 if d is not None and d != self:
-                    d.requests[self.name] = SummoningCircle(self, 2)
+                    d.requests[self.name] = self.make_circle(2)
+                    return True
                 else:
                     self.plan = "request2"  # avoid forcing request2 to happen next turn
             elif self.plan == "request2":
@@ -349,7 +391,7 @@ class Demon(LinkedListElt):
             elif self.plan == "summon":
                 d = Demon.demons.get(self.plan_target)
                 if d is not None and self.owed[self.plan_target] >= 1:
-                    SummoningCircle(self, 1).try_summon(d)
+                    self.make_circle(1).try_summon(d)
                     # should the debt still be canceled if the summon fails due to someone else summoning in the same tick?
                     self.cancel_debt_owed_by(d)
             elif self.plan == "concede":
@@ -409,6 +451,32 @@ class AI(Demon):
 class Player(Demon):
     def create_plan(self):
         self.plan = "fire" if self.fight else "wait"
+    def init_tick(self):
+        self.initial_fight = self.fight
+        self.history = []
+        return super().init_tick()
+    def act(self):
+        self.history.append(("attempted action",(self.plan,self.plan_target)))
+        return super().act()
+    def make_circle(self,n):
+        c = super().make_circle(n)
+        self.history.append(("made circle",c))
+        return c
+    def build_data(self):
+        result = self.serialize()
+        if self.fight is None:
+            result["fight"] = None
+        else:
+            result["fight"] = self.fight.serialize()
+        result["requests"] = []
+        for name in self.requests:
+            if (req := Demon.demons.get(name)) and req.fight:
+                result["requests"].append((name, req.fight.serialize()))
+        result["owed"] = [(k, c) for k, c in self.owed.items() if c >= 1]
+        result["changedFight"] = False
+        result["tick"] = time
+        return result
+
 
 
 MIN_DEMONS = 100
@@ -420,8 +488,12 @@ def tick():
     Demon.summons = dset()
     Demon.looking = dset()
     Demon.dList = None
+    while Demon.dead_demons:
+        d = Demon.dead_demons.pop()
+        d.cleanup()
 
     for fight in list(Fight.fights):
+        fight.init_tick()
         print(fight)
 
     print("Step", time)
@@ -445,11 +517,17 @@ def tick():
                 summoned.remove()
             print(summoned, "summoned by",
                   circle.summoner_name, "in fight", repr(circle.fight))
+            if circle.type==2:
+                circle.summoning=summoned
+            else:
+                assert circle.type==1
+                circle.summoner.summoning=summoned
             circle.replace(summoned)
             summoned.summoned_this_turn = True
     Demon.summons = []
 
     for fight in list(Fight.fights):
+        fight.make_data() # serialize start-of-turn data to help avoid memory leaks
         for side in [fight.side0, fight.side1]:
             for elt in list(side):
                 if isinstance(elt, SummoningCircle):
@@ -510,7 +588,25 @@ def init(num_demons=100):
     for i in range(num_demons):
         AI()
 
-
+"""
+type demon = { name:string,
+        health:number,
+        power:number,
+        human:boolean,
+        type:"demon"
+        }
+type circle = {
+        type:"circle",
+        summoned?:"circle"|demon,
+        }
+type side = [demon+{
+        summoned?:"circle"|demon,
+        died:boolean,
+        fired: null|string,
+        moved:boolean,
+        } | circle
+]
+"""
 def build_data(d):
     """
     type side=[{name:string,
@@ -530,16 +626,4 @@ def build_data(d):
     nexttick:number /* number of seconds until next tick*/
     tick: number
     }"""
-    result = d.serialize()
-    if d.fight is None:
-        result["fight"] = None
-    else:
-        result["fight"] = d.fight.serialize()
-    result["requests"] = []
-    for name in d.requests:
-        if (req := Demon.demons.get(name)) and req.fight:
-            result["requests"].append((name, req.fight.serialize()))
-    result["owed"] = [(k, c) for k, c in d.owed.items() if c >= 1]
-    result["changedFight"] = False
-    result["tick"] = time
-    return result
+    return d.build_data()
