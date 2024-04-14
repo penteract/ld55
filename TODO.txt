@@ -3,10 +3,16 @@
 Get animations
  - show shots from demons that successfully shoot
  - make the result of a battle clear
+   - Make a log of events that affect you
+     - result of your action (unless the action is wait)
+     - any movement
+     - result of any fight that ends (concession or one side being empty (killed or summoned away))
 
 Handle Game Over appropriately:
  don't just 400
  report kills, wins, age, debts
+
+
 
 Get animations working properly
   - track what happens on the server side
