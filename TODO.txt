@@ -1,0 +1,26 @@
+Make clickng on any action do something
+
+Get animations
+ - show shots from demons that successfully shoot
+ - make the result of a battle clear
+
+Get animations working properly
+  - track what happens on the server side
+    - fix summons so that they appear in the right places (create placeholders that exist within the linked list)
+  - make shots hit the right targets while summoning attempts are made and deaths occur;
+       then animate summons (animate horizontal shrinking+growing; consider how to manage fizzles)
+
+  - design some animations (possibly use an actual image editor rather than relying on canvas commands)
+
+Rendering
+ - consider dynamically scaling fights to fit the number of participants
+
+Audio?
+
+Consider changing the rules/strategy
+  There are many things we could do here but it's not a priority until we can see more about how the game plays.
+
+Prepare and submit the game
+  - Screenshots
+  - add authors on ldjam.com (we need to Follow each other)
+  - Title "You can be summoned"
