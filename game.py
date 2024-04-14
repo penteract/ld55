@@ -222,7 +222,7 @@ class Demon(LinkedListElt):
 
     def serialize(self):
         res = {}
-        for k in ["name", "power", "score", "health", "plan"]:
+        for k in ["name", "power", "score", "health", "plan", "summoned_this_turn"]:
             res[k] = getattr(self, k)
         return res
 
@@ -264,6 +264,7 @@ class Demon(LinkedListElt):
         self.requests = {}
         self.summoner = None
         self.acted = False
+        self.summoned_this_turn = False
 
     def die(self):
         print("Demon died!", self.name)
@@ -444,6 +445,7 @@ def tick():
             print(summoned, "summoned by",
                   circle.summoner, "in fight", repr(circle.fight))
             circle.replace(summoned)
+            summoned.summoned_this_turn = True
     Demon.summons = []
 
     for fight in list(Fight.fights):

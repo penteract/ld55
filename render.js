@@ -99,6 +99,11 @@ function renderDemonImg(demon, canvas) {
         x = (x * 211) % 65535
         return k
     }
+
+    if (demon.summoned_this_turn) {
+        ctx.drawImage(document.getElementById("summoningCircleBaseImg"), 0, 42, 30, 10)
+    }
+
     base = 50
     ctx.fillStyle = `rgb(${180 + rnd(76)},0,0)`
     for (let i of [0, 1, 2]) {
