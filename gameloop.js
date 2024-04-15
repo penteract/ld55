@@ -7,10 +7,17 @@ function requestInfo() {
         globresp = resp
         let nextTick = +resp.nexttick
         startClock(nextTick)
-        clearSelected()
         let isInFight = resp.inFight
-        // resp.newFight!==undefined || resp.initialFight?.status==="ongoing"
-         // the commented out variant above is wrong, because you can be summonned away to a fight that's ending.
+        lastDataTick=resp.tick
+
+        let prevSelection=undefined
+        if(document.getElementById("baseActsNonFight").contains(document.getElementsByClassName("selected")[0])){
+            prevSelection = document.getElementsByClassName("selected")[0]
+        }
+        clearSelected()
+        if(prevSelection && !isInFight){
+            prevSelection.click()
+        }
 
         showBaseActions(isInFight)
 
@@ -26,7 +33,6 @@ function requestInfo() {
         renderInvitations(resp.requests)
         renderSummons(resp.owed)
         renderPossibleRequests()
-        lastDataTick=resp.tick
         if(!globresp.dead){
             requestTimeout = window.setTimeout(requestInfo, nextTick * 1000)
         }
