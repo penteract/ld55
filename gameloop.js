@@ -84,7 +84,7 @@ function requestInfo() {
         renderInvitations(resp.requests)
         renderSummons(resp.owed)
         renderDebts(resp.owes)
-        renderPossibleRequests()
+        // renderPossibleRequests()
         renderStats(resp.stats)
         if (!globresp.dead) {
             requestTimeout = window.setTimeout(requestInfo, nextTick * 1000)

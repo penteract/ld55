@@ -35,8 +35,15 @@
             <div class="actionColInner">
                 <h3 id="headerBaseActs">Basic Actions</h3>
                 <div id="baseActsFight" class="hidden">
-                    <div class="act" onclick="act(this,'fire')" id="actFire">🔥 Attack</div>
-                    <div class="act" onclick="act(this,'concede')" id="actConcede">🏳️ Surrender</div>
+                    <div class="act" onclick="act(this,'fire')" id="actFire"
+                        title="Attack first demon on the opposing side. If they die, you will be healed.">🔥 Attack
+                    </div>
+                    <div class="act" onclick="act(this,'request','Unknown')" id="actRequestUnk"
+                        title="Ask for help in a fight, but beware: you will owe them a favour">❓ Request help
+                    </div>
+                    <div class="act" onclick="act(this,'concede')" id="actConcede"
+                        title="If you are the leader of your fight, surrender. You will owe the opposing leader a favour.">
+                        🏳️ Surrender</div>
                     <!-- TODO: some indicator that concession will only work if you're the leader?
                         There's no reason to use otherwise - leader cannot be summoned away before concession goes through
                     -->
@@ -57,7 +64,7 @@
             </div>
         </div>
 
-        <div class="actionCol" id="requestActions">
+        <!-- <div class="actionCol" id="requestActions">
             <div class="actionColInner">
                 <h3 id="headerRequests" title="Ask for help in a fight, but beware: you will owe them a favour">Request
                     Help</h3>
@@ -65,7 +72,7 @@
                 </div>
                 <div id="requestActionsList"></div>
             </div>
-        </div>
+        </div> -->
 
         <div class="actionCol" id="invitations">
             <div class="actionColInner">
