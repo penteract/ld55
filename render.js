@@ -48,7 +48,7 @@ function startClock(timeleft) {
 }
 
 function renderDemon(demon, highlight) {
-    if (demon.circle !== undefined) {
+    if (demon.type === "circle") {
         return renderSummoningCircle(demon.circle, highlight)
     }
 
@@ -193,14 +193,33 @@ function renderMainFightSide(side, left = true) {
     side = side.map(i => i).reverse() // Do this so that the target of attacks is always on the top line
 
     for (let demon of side) {
+        if(demon.summoning){
+            let summonee = renderDemon(demon.summoning)
+            if(demon.type === "circle"){
+                summonee.classList.add("arrivingCircle")
+            }else{
+                summonee.classList.add("arriving")
+            }
+            sideElt.appendChild(summonee)
+        }
         let demonElt = renderDemon(demon)
         sideElt.appendChild(demonElt)
+        if(demon.type==="circle"){
+            if(demon.summoning) {demonElt.classList.add("leavingCircle");}
+            else {demonElt.classList.add("leaving");}
+        }
+        else if (demon.summoned_this_turn || demon.dead){
+            demonElt.classList.add("leaving")
+        }
+        if(demon.fired){
+            demonElt.classList.add("firing")
+        }
     }
 
     return sideElt
 }
 
-function renderMainFight(initialFight,newFight) {
+function renderMainFight(initialFight,isInFight, newFight) {
     let mainFightElt = document.getElementById("mainFight")
     mainFightElt.innerHTML = ""
     //mainFightElt.appendChild(renderFight(fight))
@@ -221,6 +240,9 @@ function renderMainFight(initialFight,newFight) {
         let newF = renderFight(newFight)
         newF.classList.add("newFight")
         mainFightElt.appendChild(newF)
+    }
+    if(newFight || !isInFight){
+        elt.classList.add("vanishing")
     }
     mainFightElt.appendChild(elt)
 }

@@ -230,7 +230,7 @@ class SummoningCircle(LinkedListElt):
             self.remove()
 
     def serialize(self):
-        return {"circle": {"name": self.summoner_name}}
+        return {"circle": {"name": self.summoner_name},"type":"circle"}
 
     def long_serialize(self):
         r = self.serialize()
@@ -267,10 +267,10 @@ class Demon(LinkedListElt):
         res = {}
         for k in ["name", "power", "score", "health", "plan", "summoned_this_turn","dead"]:
             res[k] = getattr(self, k)
+        res["type"]="demon"
         return res
     def long_serialize(self):
         r = self.serialize()
-        r["type"]="demon"
         if self.fired: r["fired"]=self.fired.name
         if self.summoning: r["summoning"]=self.summoning.serialize()
         return r
@@ -389,7 +389,8 @@ class Demon(LinkedListElt):
             elif self.plan == "request":
                 d = Demon.demons.get(self.plan_target)
                 if d is not None and d != self:
-                    d.requests[self.name] = self.make_circle(2)
+                    self.summoning = self.make_circle(2)
+                    d.requests[self.name] = self.summoning
                     return True
                 else:
                     self.plan = "request2"  # avoid forcing request2 to happen next turn
@@ -488,6 +489,7 @@ class Player(Demon):
         result["changedFight"] = (self.fight is not self.initial_fight)
         if result["changedFight"] and self.fight is not None:
             result["newFight"] = self.fight.serialize()
+        result["inFight"]=bool(self.fight)
         result["tick"] = time
         return result
 
@@ -617,7 +619,7 @@ type side = [demon+{
         summoning?:"circle"|demon,
         died:boolean,
         fired: null|string,
-        moved:boolean,
+        summoned_this_turn:boolean,
         } | circle
 ]
 """

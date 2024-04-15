@@ -112,8 +112,10 @@ body {
 
 .fightParticipant {
     display: inline-block;
-    width: 80px;
+    width: 60px;
     overflow: hidden;
+    /*background: #FFF8;*/
+    margin-inline-end:20px;
 }
 #mainfight .fightParticipant {
   /*transform: translate(-90%);
@@ -149,7 +151,85 @@ body {
     display: inline-block;
 }
 
+@keyframes changeFight{
+    0%{
+        scale:0%;
+        opacity:0%;
+    }
+    100%{
+        opacity:100%;
+        scale:100%;
+    }
+}
 .newFight{
     position:absolute;
-    transform:rotate(90deg);
+    animation: changeFight 2s;
 }
+@keyframes vanish{
+    0%{
+        opacity:100%;
+    }
+    100%{
+        opacity:0%;
+    }
+}
+.vanishing{
+    animation:vanish 1s 1s forwards;
+}
+
+@keyframes grow{
+    0%{
+        /*scale:0% 100%;*/
+        opacity:0%;
+        margin-inline-end:-30px;
+        margin-inline-start:-30px;
+    }
+    50%{
+        /*scale: 100% 100%;*/
+        opacity:100%;
+        margin-inline-end:-30px;
+        margin-inline-start:-30px;
+        /*margin-inline-start:20px*/
+    }
+}
+
+.arriving{
+    animation : grow 2s;
+}
+
+@keyframes shrink{
+    100%{
+        opacity: 0%;
+        margin-inline-end:-30px;
+        margin-inline-start:-30px;
+        /*margin-inline-start:20px*/
+    }
+}
+
+.leaving{
+    animation : shrink 1s 1s forwards;
+}
+
+@keyframes growCircle{
+    0%{
+        opacity:0%;
+    }
+    100%{
+        opacity:100%;
+    }
+}
+@keyframes shrinkCircle{
+    100%{
+        opacity : 0%;
+    }
+}
+
+.arrivingCircle{
+    animation : growCircle 1s 1s both;
+    margin-inline-end: -60px;
+}
+.leavingCircle{
+    animation : shrinkCircle 1s 1s forwards;
+}
+
+

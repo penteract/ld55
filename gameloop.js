@@ -8,7 +8,9 @@ function requestInfo() {
         let nextTick = +resp.nexttick
         startClock(nextTick)
         clearSelected()
-        let isInFight = resp.newFight!==undefined || resp.initialFight?.status==="ongoing"
+        let isInFight = resp.inFight
+        // resp.newFight!==undefined || resp.initialFight?.status==="ongoing"
+         // the commented out variant above is wrong, because you can be summonned away to a fight that's ending.
 
         showBaseActions(isInFight)
 
@@ -19,14 +21,15 @@ function requestInfo() {
         }
 
         updateKnowledge(resp)
-        renderMainFight(resp.initialFight?.sides??[[],[]],resp.newFight)
+        renderMainFight(resp.initialFight?.sides??[[],[]],isInFight,resp.newFight)
         renderSelf(resp)
         renderInvitations(resp.requests)
         renderSummons(resp.owed)
         renderPossibleRequests()
         lastDataTick=resp.tick
-
-        requestTimeout = window.setTimeout(requestInfo, nextTick * 1000)
+        if(!globresp.dead){
+            requestTimeout = window.setTimeout(requestInfo, nextTick * 1000)
+        }
     })
 }
 
