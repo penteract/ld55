@@ -11,11 +11,8 @@ function drawClock(ticks = 0) {
 
     //ticks %= MAX_TIME
 
-    begin_angle_deg = -90
-    end_angle_deg = begin_angle_deg + ticks / MAX_TIME * 360
-
-    begin_angle_rad = begin_angle_deg / 360 * Math.TAU
-    end_angle_rad = end_angle_deg / 360 * Math.TAU
+    begin_angle_rad = -1 / 4 * Math.TAU
+    end_angle_rad = (-1 / 4 + ticks / MAX_TIME) * Math.TAU
 
     ctx.clearRect(0, 0, w, h)
     ctx.beginPath()
@@ -380,7 +377,7 @@ function drawPentegram(ctx, x, y, r) {
     ctx.strokeStyle = "red"
     for (i = 0; i < 5; i++) {
         ctx.beginPath()
-        ctx.arc(x, y, r, i * (Math.PI * 2 / 5) - Math.PI / 2, (i + 2) * (Math.PI * 2 / 5) - Math.PI / 2)
+        ctx.arc(x, y, r, (-1 / 4 + i / 5) * Math.TAU, (-1 / 4 + (i + 2) / 5) * Math.TAU)
         ctx.closePath()
         ctx.stroke()
     }
