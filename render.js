@@ -213,6 +213,9 @@ function renderMainFightSide(side, left) {
             else { demonElt.classList.add("leaving"); }
         } else {
             targetDict[demon.name] = demonElt
+            if(demon.dead){
+                demonElt.classList.add("dead")
+            }
             if (demon.summoned_this_turn || demon.dead) {
                 demonElt.classList.add("leaving")
             }
