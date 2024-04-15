@@ -93,7 +93,7 @@ class Fight:
         Fight.fights.add(self)
 
     def init_tick(self):
-        self.sidesAtStart = (list(self[0]),list(self[1]))
+        self.sidesAtStart = (list(self[0]), list(self[1]))
 
     def __getitem__(self, idx):
         if idx == 0:
@@ -110,20 +110,21 @@ class Fight:
 
     def make_data(self):
         """Serialization of what happened on the most recent turn"""
-        self.long_data = [[x.long_serialize() for x in side] for side in self.sidesAtStart]
-        self.sidesAtStart=None
+        self.long_data = [[x.long_serialize() for x in side]
+                          for side in self.sidesAtStart]
+        self.sidesAtStart = None
 
     def long_serialize(self):
         return {"sides": self.long_data,
-                "status":self.status,
-                "loser":self.loser}
+                "status": self.status,
+                "loser": self.loser}
 
     def serialize(self):
         """Serialization of the current state"""
         return [side.serialize() for side in [self.side0, self.side1]]
 
-    def end(self,reason,loser):
-        print("Fight ended! because",reason, [d.name for d in self.side0], [
+    def end(self, reason, loser):
+        print("Fight ended! because", reason, [d.name for d in self.side0], [
               d.name for d in self.side1])
         for side in [self.side0, self.side1]:
             for d in list(side):
@@ -131,7 +132,7 @@ class Fight:
                 if isinstance(d, Demon) and not d.acted:
                     d.plan = "wait"
                 if isinstance(d, Player):
-                    d.history.append(("fight ended",reason,loser,d.side))
+                    d.history.append(("fight ended", reason, loser, d.side))
                 # (Toby: knowing the old plan might be helpful for UI)
             assert side.empty()
         self.status = reason
@@ -215,15 +216,15 @@ class LinkedListElt():
 
 class SummoningCircle(LinkedListElt):
     def __init__(self, summoner, time):
-        super().__init__()#
+        super().__init__()
         self.summoner = summoner
         self.summoner_name = summoner.name
-        self.name="circle of "+summoner.name
+        self.name = "circle of "+summoner.name
         self.summoner_born = summoner.born
         self.time = time
         self.type = time
-        self.summoning=None
-        #self.name = f"{summoner.name}'s summoning circle"
+        self.summoning = None
+        # self.name = f"{summoner.name}'s summoning circle"
         self.insert_after(summoner)
 
     def tick(self):
@@ -232,22 +233,25 @@ class SummoningCircle(LinkedListElt):
             self.remove()
 
     def serialize(self):
-        return {"circle": {"name": self.summoner_name},"type":"circle"}
+        return {"circle": {"name": self.summoner_name}, "type": "circle"}
 
     def long_serialize(self):
         r = self.serialize()
-        r["type"]="circle"
-        if self.summoning: r["summoning"]=self.summoning.serialize()
+        r["type"] = "circle"
+        if self.summoning:
+            r["summoning"] = self.summoning.serialize()
         return r
 
     def hit(self):
         if self.prev:
             return self.prev.hit()
+
     def replace(self, elt):
-        self.summoner=None
+        self.summoner = None
         return super().replace(elt)
+
     def remove(self):
-        self.summoner=None
+        self.summoner = None
         return super().remove()
 
 
@@ -259,14 +263,16 @@ class Demon(LinkedListElt):
 
     def serialize(self):
         res = {}
-        for k in ["name", "power", "score", "health", "plan", "summoned_this_turn","dead"]:
+        for k in ["name", "power", "score", "health", "plan", "summoned_this_turn", "dead"]:
             res[k] = getattr(self, k)
-        res["type"]="demon"
+        res["type"] = "demon"
         return res
+
     def long_serialize(self):
         r = self.serialize()
-        r["fired"]=self.fired
-        if self.summoning: r["summoning"]=self.summoning.serialize()
+        r["fired"] = self.fired
+        if self.summoning:
+            r["summoning"] = self.summoning.serialize()
         return r
 
     def __init__(self):
@@ -303,13 +309,14 @@ class Demon(LinkedListElt):
         self.init_tick()
 
     def init_tick(self):
-        self.fired=None
-        self.summoning=None
+        self.fired = None
+        self.summoning = None
         self.last_requests = self.requests
         self.requests = {}
         self.circle = None
         self.acted = False
         self.summoned_this_turn = False
+
     def die(self):
         print("Demon died!", self.name)
         self.remove()
@@ -323,11 +330,12 @@ class Demon(LinkedListElt):
         Demon.demons.pop(self.name)
         self.requests = []
         self.last_requests = []
-        Demon.dead_demons.append(self) # for cleanup next tick
+        Demon.dead_demons.append(self)  # for cleanup next tick
+
     def cleanup(self):
         assert self.dead
         self.init_tick()
-        self.last_requests={}
+        self.last_requests = {}
 
     def hit(self):
         self.health -= 1
@@ -360,13 +368,15 @@ class Demon(LinkedListElt):
 
     def answer(self):
         assert self.plan_target in self.last_requests
-        d = Demon.demons.get(self.plan_target) # We can count on this being the same demon that initiated the summoning if it's in a fight, since a newly born demon with the same name wouldn't have had a chance to enter a fight.
+        # We can count on this being the same demon that initiated the summoning if it's in a fight, since a newly born demon with the same name wouldn't have had a chance to enter a fight.
+        d = Demon.demons.get(self.plan_target)
         circle = self.last_requests.get(self.plan_target)
         if d is not None and circle.fight:  # the fight may be over
             self.try_summon(circle)
             self.be_owed_debt_by(d)
-    def make_circle(self,n):
-        c = SummoningCircle(self,n)
+
+    def make_circle(self, n):
+        c = SummoningCircle(self, n)
         return c
 
     def act(self):
@@ -412,7 +422,7 @@ class Demon(LinkedListElt):
                     opp = self.fight.opp(self.side).back
                     if isinstance(opp, Demon):
                         self.owe_debt_to(opp)
-                        self.fight.end("concede",self.side)
+                        self.fight.end("concede", self.side)
                         # jfb: ending the fight in the middle of the fight could mess with pending summons. test what happens (get summoned into an empty fight?)
                         # Toby: This should be handled by setting summoner.fight to None in d.remove()
 
@@ -441,7 +451,7 @@ class AI(Demon):
             self.plan = "look"
             return
 
-        if (self.fight[self.side].back == self and random() < 0.05) or random() < 0.01:
+        if (self.fight[self.side].back == self and self.should_concede()):
             self.plan = "concede"
             return
 
@@ -460,30 +470,70 @@ class AI(Demon):
 
         self.plan = "fire"
 
+    def should_concede(self):
+        opp = list(self.fight.opp(self.side))
+        # if I don't concede now, maximum damage that could be incoming before i get a chance to next turn?
+        # could be smarter regarding age of demons. but for now humans don't easily hve access to that, so it's fairer for AIs to not consider it
+        danger = len(opp) + sum(1 for o in opp if isinstance(o, Demon))
+        shield = 0
+        x = self.next
+        while x is not None:
+            if isinstance(x, Demon):
+                shield += x.health
+            x = x.next
+
+        if danger < shield*0.9:  # if someone in front gets summoned away we could be in more danger than we expect
+            return False
+
+        if danger-shield > self.health:
+            print(self, "is facing death and is likely to concede!")
+            return random() < 0.7
+
+        safety = (self.health - max(danger-shield, 0)) / MAXHEALTH
+        # lower safety = higher chance to concede
+        # this is between 0.1-1
+
+        chance = (1-safety)*(1-safety)*0.2
+        # 1hp remaining - 16% chance
+        # 2hp remaining - 12% chance
+        #
+        # 6hp remaining - 3% chance (typical at the start of a fight that's become a 1v2)
+
+        # print(
+        #     f"{self} has a {chance} chance to concede {danger=} {shield=} {self.health=} {safety=}")
+        return random() < chance
+
 
 class Player(Demon):
-    players={}
-    def __init__(self,*args):
+    players = {}
+
+    def __init__(self, *args):
         super().__init__(*args)
-        self.truename=names.randname()
-        Player.players[(self.name,self.truename)] = self
+        self.truename = names.randname()
+        Player.players[(self.name, self.truename)] = self
+
     def create_plan(self):
         self.plan = "fire" if self.fight else "wait"
+
     def init_tick(self):
         self.initial_fight = self.fight
         self.history = []
         return super().init_tick()
+
     def act(self):
-        self.history.append(("attempted action",self.plan,self.plan_target))
+        self.history.append(("attempted action", self.plan, self.plan_target))
         return super().act()
     """def make_circle(self,n):
         c = super().make_circle(n)
         self.history.append(("made circle",c))
         return c"""
-    def try_summon(self,circle):
+
+    def try_summon(self, circle):
         changed = super().try_summon(circle)
-        self.history.append(("summon attempt",circle.type,circle.summoner_name,changed) )
+        self.history.append(("summon attempt", circle.type,
+                            circle.summoner_name, changed))
         return changed
+
     def build_data(self):
         result = self.serialize()
         if self.initial_fight is not None:
@@ -496,11 +546,10 @@ class Player(Demon):
         result["changedFight"] = (self.fight is not self.initial_fight)
         if result["changedFight"] and self.fight is not None:
             result["newFight"] = self.fight.serialize()
-        result["inFight"]=bool(self.fight)
+        result["inFight"] = bool(self.fight)
         result["tick"] = time
-        result["history"]=self.history
+        result["history"] = self.history
         return result
-
 
 
 MIN_DEMONS = 100
@@ -541,17 +590,17 @@ def tick():
                 summoned.remove()
             print(summoned, "summoned by",
                   circle.summoner_name, "in fight", repr(circle.fight))
-            if circle.type==2:
-                circle.summoning=summoned
+            if circle.type == 2:
+                circle.summoning = summoned
             else:
-                assert circle.type==1
-                circle.summoner.summoning=summoned
+                assert circle.type == 1
+                circle.summoner.summoning = summoned
             circle.replace(summoned)
             summoned.summoned_this_turn = True
     Demon.summons = []
 
-    for fight in flist: # include fights that have been conceded
-        fight.make_data() # serialize start-of-turn data to help avoid memory leaks
+    for fight in flist:  # include fights that have been conceded
+        fight.make_data()  # serialize start-of-turn data to help avoid memory leaks
     for fight in list(Fight.fights):
         for side in [fight.side0, fight.side1]:
             for elt in list(side):
@@ -560,7 +609,7 @@ def tick():
 
         if fight.side0.empty() or fight.side1.empty():
             # TODO: pay out any rewards for winning fights? (score at least)
-            fight.end("side eliminated",int(fight.side1.empty()))
+            fight.end("side eliminated", int(fight.side1.empty()))
 
     find_matchups()
 
@@ -613,6 +662,7 @@ def init(num_demons=100):
     for i in range(num_demons):
         AI()
 
+
 """
 type demon = { name:string,
         health:number,
@@ -632,6 +682,8 @@ type side = [demon+{
         } | circle
 ]
 """
+
+
 def build_data(d):
     """
     type side=[{name:string,
