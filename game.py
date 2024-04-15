@@ -44,7 +44,7 @@ class FightSide:
 
     def empty(self):
         back = self.back
-        while isinstance(back,Circle):
+        while isinstance(back,SummoningCircle):
             back=back.next
         return back is None
 
