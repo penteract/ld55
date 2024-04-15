@@ -285,7 +285,7 @@ class Demon(LinkedListElt):
 
     def serialize(self):
         res = {}
-        for k in ["name", "power", "score", "health", "plan", "summoned_this_turn", "dead"]:
+        for k in ["name", "influence", "score", "health", "plan", "summoned_this_turn", "dead"]:
             res[k] = getattr(self, k)
         res["type"] = "demon"
         res["stats"] = self.stats.serialize()
@@ -311,7 +311,7 @@ class Demon(LinkedListElt):
         self.born = time
 
         # stats
-        self.power = 1
+        self.influence = 1
         self.score = 0
 
         # summoning debts (map from demon names to number of times owed)
@@ -467,6 +467,10 @@ class Demon(LinkedListElt):
 
     def __repr__(self):
         return "<"+self.__class__.__name__+" "+self.name+">"
+    def end_tick(self):
+        self.influence = 1+sum( k**0.5/(i+1)
+            for k,i in enumerate(sorted(n*Demon.demons[name].influence for name,n in self.owed.items(),reverse=True)))
+        self.create_plan()
 
 
 class AI(Demon):
@@ -653,7 +657,7 @@ def tick():
 
     # AIs make their choices based on the info they have at the start of the turn (now)
     for d in Demon.demons.values():
-        d.create_plan()
+        d.end_tick()
 
 
 def create_fight(side0, side1):
