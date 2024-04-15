@@ -69,7 +69,7 @@ body {
 }
 
 #invitations {
-    width: calc(100% - 170px - 170px - 170px);
+    width: calc(100% - 170px - 170px);
     min-width: 170px;
 }
 
