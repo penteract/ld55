@@ -2,6 +2,7 @@ import traceback
 import names
 from collections import defaultdict
 from random import random, choice
+from dataclasses import dataclass, asdict
 # Game state is a global variable.
 # This is reasonable for a game jam
 
@@ -44,8 +45,8 @@ class FightSide:
 
     def empty(self):
         back = self.back
-        while isinstance(back,SummoningCircle):
-            back=back.next
+        while isinstance(back, SummoningCircle):
+            back = back.next
         return back is None
 
     def __bool__(self):
@@ -56,6 +57,17 @@ class FightSide:
 
     def serialize(self):
         return [d.serialize() for d in self]
+
+
+@dataclass
+class Stats:
+    direct_kills: int = 0
+    team_kills: int = 0
+    wins: int = 0
+    max_influence: int = 1
+
+    def serialize(self):
+        return asdict(self)
 
 
 class dset():
@@ -128,6 +140,8 @@ class Fight:
         for side in [self.side0, self.side1]:
             for d in list(side):
                 d.remove()
+                if d.side != loser:
+                    d.stats.wins += 1
                 if isinstance(d, Demon) and not d.acted:
                     d.plan = "wait"
                 if isinstance(d, Player):
@@ -138,6 +152,15 @@ class Fight:
         self.loser = loser
         print("removing", self)
         Fight.fights.remove(self)
+
+    def reward_kill(self, loser):
+        for demon in self.opp(loser):
+            if isinstance(demon, Demon):
+                demon.stats.team_kills += 1
+                demon.heal(1)
+                if demon.plan == "fire":
+                    demon.stats.direct_kills += 1
+                    demon.heal(1)
 
     def __str__(self):
         return repr(self)+str(self.side0)+"vs"+str(self.side1)
@@ -188,7 +211,7 @@ class LinkedListElt():
         self.fight = None
         self.next = None
         self.prev = None
-        #self.side = 2
+        # self.side = 2
 
     def replace(self, elt):
         assert elt.fight is None
@@ -265,6 +288,7 @@ class Demon(LinkedListElt):
         for k in ["name", "power", "score", "health", "plan", "summoned_this_turn", "dead"]:
             res[k] = getattr(self, k)
         res["type"] = "demon"
+        res["stats"] = self.stats.serialize()
         return res
 
     def long_serialize(self):
@@ -301,6 +325,8 @@ class Demon(LinkedListElt):
 
         self.dead = False
 
+        self.stats = Stats()
+
         # transient data (doesn't last longer than a tick)
         self.requests = {}
         self.plan = "wait"
@@ -318,6 +344,7 @@ class Demon(LinkedListElt):
 
     def die(self):
         print("Demon died!", self.name)
+        self.fight.reward_kill(self.side)
         self.remove()
         self.dead = True
         while self.owes:
@@ -328,7 +355,7 @@ class Demon(LinkedListElt):
             Demon.demons[k].owes.pop(self.name)
         Demon.demons.pop(self.name)
         self.requests = {}
-        self.last_requests = []
+        self.last_requests = {}
         Demon.dead_demons.append(self)  # for cleanup next tick
 
     def cleanup(self):
@@ -341,6 +368,10 @@ class Demon(LinkedListElt):
         if self.health <= 0:
             self.die()
         return self
+
+    def heal(self, amt=1):
+        self.health += amt
+        self.health = min(self.health, MAXHEALTH)
 
     def owe_debt_to(self, other):
         self.owes[other.name] += 1
@@ -538,7 +569,7 @@ class Player(Demon):
         if self.initial_fight is not None:
             result["initialFight"] = self.initial_fight.long_serialize()
         result["requests"] = []
-        for (name,circle) in self.requests.items():
+        for (name, circle) in self.requests.items():
             if circle.fight:
                 result["requests"].append((name, circle.fight.serialize()))
         result["owed"] = [(k, c) for k, c in self.owed.items() if c >= 1]
