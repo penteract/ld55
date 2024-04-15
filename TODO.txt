@@ -1,7 +1,15 @@
+PRIORITIES:
+- log what happens to you (results of your actions and attempts to move you)
+- stats on death
+- intro + restart button
+
+- basic AI
+
+
 // Make clickng on any action do something
 
 Get animations
- - show shots from demons that successfully shoot
+ //- show shots from demons that successfully shoot
  - make the result of a battle clear
    - Make a log of events that affect you
      - result of your action (unless the action is wait)

@@ -150,6 +150,12 @@ body {
 .summonCount {
     display: inline-block;
 }
+#log {
+    overflow: scroll;
+    height: 4em;
+    background: burlywood;
+}
+
 
 @keyframes changeFight{
     0%{
@@ -162,8 +168,14 @@ body {
     }
 }
 .newFight{
-    position:absolute;
     animation: changeFight 2s;
+    display: inline-block;
+}
+.fight+.newFight{
+    margin-left: -100%;
+}
+#mainFight>.fight:not(.newFight){
+    display:inline-block;
 }
 @keyframes vanish{
     0%{

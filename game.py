@@ -130,6 +130,8 @@ class Fight:
                 d.remove()
                 if isinstance(d, Demon) and not d.acted:
                     d.plan = "wait"
+                if isinstance(d, Player):
+                    d.history.append(("fight ended",reason,loser,d.side))
                 # (Toby: knowing the old plan might be helpful for UI)
             assert side.empty()
         self.status = reason
@@ -241,14 +243,6 @@ class SummoningCircle(LinkedListElt):
     def hit(self):
         if self.prev:
             return self.prev.hit()
-
-    def try_summon(self, summonee):
-        """enact a Summon, unless the creator of the circle is not older than someone else trying to summon the same demon in the same tick"""
-        c = summonee.circle
-        if c is None or c.summoner_born > self.summoner_born:
-            summonee.circle = self
-            if c is None:
-                Demon.summons.add(summonee)
     def replace(self, elt):
         self.summoner=None
         return super().replace(elt)
@@ -355,12 +349,21 @@ class Demon(LinkedListElt):
         other.owes[self.name] -= 1
         assert self.owes[other.name] == other.owed[self.name]
 
+    def try_summon(self, circle):
+        """enact a Summon (prepare to move self to the circle), unless the creator of the circle is not older than someone else trying to summon the same demon in the same tick"""
+        c = self.circle
+        if c is None or c.summoner_born > circle.summoner_born:
+            self.circle = circle
+            if c is None:
+                Demon.summons.add(self)
+            return True
+
     def answer(self):
         assert self.plan_target in self.last_requests
         d = Demon.demons.get(self.plan_target) # We can count on this being the same demon that initiated the summoning if it's in a fight, since a newly born demon with the same name wouldn't have had a chance to enter a fight.
         circle = self.last_requests.get(self.plan_target)
         if d is not None and circle.fight:  # the fight may be over
-            circle.try_summon(self)
+            self.try_summon(circle)
             self.be_owed_debt_by(d)
     def make_circle(self,n):
         c = SummoningCircle(self,n)
@@ -401,7 +404,7 @@ class Demon(LinkedListElt):
             elif self.plan == "summon":
                 d = Demon.demons.get(self.plan_target)
                 if d is not None and self.owed[self.plan_target] >= 1:
-                    self.make_circle(1).try_summon(d)
+                    d.try_summon(self.make_circle(1))
                     # should the debt still be canceled if the summon fails due to someone else summoning in the same tick?
                     self.cancel_debt_owed_by(d)
             elif self.plan == "concede":
@@ -471,12 +474,16 @@ class Player(Demon):
         self.history = []
         return super().init_tick()
     def act(self):
-        self.history.append(("attempted action",(self.plan,self.plan_target)))
+        self.history.append(("attempted action",self.plan,self.plan_target))
         return super().act()
-    def make_circle(self,n):
+    """def make_circle(self,n):
         c = super().make_circle(n)
         self.history.append(("made circle",c))
-        return c
+        return c"""
+    def try_summon(self,circle):
+        changed = super().try_summon(circle)
+        self.history.append(("summon attempt",circle.type,circle.summoner_name,changed) )
+        return changed
     def build_data(self):
         result = self.serialize()
         if self.initial_fight is not None:
@@ -491,6 +498,7 @@ class Player(Demon):
             result["newFight"] = self.fight.serialize()
         result["inFight"]=bool(self.fight)
         result["tick"] = time
+        result["history"]=self.history
         return result
 
 

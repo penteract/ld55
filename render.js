@@ -403,3 +403,8 @@ function mkFireball(src,target,parent){
     fb.style.top=ey+"px"
     return fb
 }
+function logMessage(msg){
+    let log = document.getElementById("log")
+    log.prepend(document.createElement("br"))
+    log.prepend(msg)
+}
