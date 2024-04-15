@@ -74,7 +74,12 @@ function renderDemon(demon, highlight) {
 
     let powerElt = document.createElement("div")
     powerElt.classList.add("demonPower")
-    powerElt.textContent = demon.power
+    function fixedq(s){
+        n=+s
+        if (n===NaN) return "?";
+        else return n.toFixed(1)
+    }
+    powerElt.textContent = fixedq(demon.influence)
     elt.appendChild(powerElt)
 
     return elt

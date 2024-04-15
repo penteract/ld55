@@ -28,7 +28,8 @@ function requestInfo() {
         }
         let summoned = undefined
         function dotHundreds(n){
-            return ""+(n/100|0)+"."+(n%100)
+            return (n/100).toFixed(2)
+            //return ""+(n/100|0)+"."+(n%100)
         }
         function logTick(s){
             logMessage("Year "+dotHundreds(lastDataTick+100)+": "+s)
@@ -146,7 +147,7 @@ function dummyDemon(name) {
     return {
         name: name,
         health: null,
-        power: "?",
+        influence: "?",
         human: false
     }
 }
