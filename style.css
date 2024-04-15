@@ -2,7 +2,7 @@
     width: 100%;
     min-height: 300px;
     border: 2px solid black;
-    position:relative;/*makes it an anchor of*/
+    position:relative;/*makes it an anchor for newFight*/
 }
 
 #clock {
@@ -232,4 +232,12 @@ body {
     animation : shrinkCircle 1s 1s forwards;
 }
 
+.fireball{
+    position: absolute;
+    background:orangered;
+    width: 10px;
+    height:10px;
+    transition: left 1s, top 1s;
+    animation: shrinkCircle 1s 1s both;
+}
 

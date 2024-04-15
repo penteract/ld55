@@ -186,7 +186,7 @@ function renderFight(fight, highlight = null) {
     return elt
 }
 
-function renderMainFightSide(side, left = true) {
+function renderMainFightSide(side, left) {
     let sideElt = document.createElement("div")
     sideElt.classList.add("fightSide")
     sideElt.classList.add(left ? "fightSideLeft" : "fightSideRight")
@@ -207,24 +207,30 @@ function renderMainFightSide(side, left = true) {
         if(demon.type==="circle"){
             if(demon.summoning) {demonElt.classList.add("leavingCircle");}
             else {demonElt.classList.add("leaving");}
-        }
-        else if (demon.summoned_this_turn || demon.dead){
-            demonElt.classList.add("leaving")
+        }else{
+            targetDict[demon.name] = demonElt
+            if (demon.summoned_this_turn || demon.dead){
+                demonElt.classList.add("leaving")
+            }
         }
         if(demon.fired){
+            fireballs.push([demonElt,demon.fired])
             demonElt.classList.add("firing")
         }
     }
 
     return sideElt
 }
-
+var targetDict;
+var fireballs;
 function renderMainFight(initialFight,isInFight, newFight) {
     let mainFightElt = document.getElementById("mainFight")
     mainFightElt.innerHTML = ""
     //mainFightElt.appendChild(renderFight(fight))
     let elt = document.createElement("div")
     elt.classList.add("fight")
+    targetDict={}
+    fireballs=[]
 
     let leftSide = renderMainFightSide(initialFight[0], true)
     elt.appendChild(leftSide)
@@ -235,6 +241,11 @@ function renderMainFight(initialFight,isInFight, newFight) {
 
     let rightSide = renderMainFightSide(initialFight[1], false)
     elt.appendChild(rightSide)
+    mainFightElt.appendChild(elt)
+    //elt.
+    for (let [src,target] of fireballs){
+        mkFireball(src,targetDict[target],mainFightElt)
+    }
     //Render a new fight on top of the old one
     if(newFight){
         let newF = renderFight(newFight)
@@ -244,7 +255,6 @@ function renderMainFight(initialFight,isInFight, newFight) {
     if(newFight || !isInFight){
         elt.classList.add("vanishing")
     }
-    mainFightElt.appendChild(elt)
 }
 
 function renderSelf(demon) {
@@ -374,4 +384,22 @@ function drawPentegram(ctx,x,y,r){
         ctx.closePath()
         ctx.stroke()
     }
+}
+function getCenter(el){
+    let r = el.getBoundingClientRect()
+    return [r.x+r.width/2+window.pageXOffset, r.y+r.height/2+window.pageYOffset]
+}
+function mkFireball(src,target,parent){
+    console.log("fireball",src,target,parent)
+    let [sx,sy] = getCenter(src)
+    let [ex,ey] = getCenter(target)
+    fb = document.createElement("div")
+    parent.prepend(fb)
+    fb.style.left=sx+"px"
+    fb.style.top=sy+"px"
+    fb.classList.add("fireball")
+    fb.offsetWidth|=0;
+    fb.style.left=ex+"px"
+    fb.style.top=ey+"px"
+    return fb
 }

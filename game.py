@@ -240,7 +240,7 @@ class SummoningCircle(LinkedListElt):
 
     def hit(self):
         if self.prev:
-            self.prev.hit()
+            return self.prev.hit()
 
     def try_summon(self, summonee):
         """enact a Summon, unless the creator of the circle is not older than someone else trying to summon the same demon in the same tick"""
@@ -271,7 +271,7 @@ class Demon(LinkedListElt):
         return res
     def long_serialize(self):
         r = self.serialize()
-        if self.fired: r["fired"]=self.fired.name
+        r["fired"]=self.fired
         if self.summoning: r["summoning"]=self.summoning.serialize()
         return r
 
@@ -384,8 +384,8 @@ class Demon(LinkedListElt):
             if self.plan == "fire":
                 if self.fight is not None:
                     opp = self.fight.opp(self.side).front
-                    if opp is not None:
-                        opp.hit()
+                    if opp is not None and (target := opp.hit()):
+                        self.fired = target.name
             elif self.plan == "request":
                 d = Demon.demons.get(self.plan_target)
                 if d is not None and d != self:
@@ -507,8 +507,8 @@ def tick():
     while Demon.dead_demons:
         d = Demon.dead_demons.pop()
         d.cleanup()
-
-    for fight in list(Fight.fights):
+    flist = list(Fight.fights)
+    for fight in flist:
         fight.init_tick()
         print(fight)
 
@@ -542,8 +542,9 @@ def tick():
             summoned.summoned_this_turn = True
     Demon.summons = []
 
-    for fight in list(Fight.fights):
+    for fight in flist: # include fights that have been conceded
         fight.make_data() # serialize start-of-turn data to help avoid memory leaks
+    for fight in list(Fight.fights):
         for side in [fight.side0, fight.side1]:
             for elt in list(side):
                 if isinstance(elt, SummoningCircle):
