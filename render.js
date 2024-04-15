@@ -314,6 +314,40 @@ function renderSummons(summons) {
     }
 }
 
+function renderDebt(debt) {
+    let demonName = debt[0]
+    let count = debt[1]
+
+    let elt = document.createElement("div")
+    elt.classList.add("debt")
+
+    let demonElt = renderDemon(lookupDemon(demonName))
+    elt.appendChild(demonElt)
+
+    let countElt = document.createElement("div")
+    countElt.classList.add("summonCount")
+    countElt.textContent = "x " + count
+    elt.appendChild(countElt)
+    return elt
+}
+
+function renderDebts(debts) {
+    let debtsElt = document.getElementById("debtsList")
+    debtsElt.innerHTML = ""
+
+    let headerElt = document.getElementById("headerDebts")
+    if (debts.length == 0) {
+        headerElt.classList.add("hidden")
+    }
+    else {
+        headerElt.classList.remove("hidden")
+    }
+
+    for (let debt of debts) {
+        debtsElt.appendChild(renderDebt(debt))
+    }
+}
+
 function renderPossibleRequest(demonName) {
     let elt = document.createElement("div")
     elt.classList.add("act")
