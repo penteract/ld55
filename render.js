@@ -157,7 +157,8 @@ function renderSummoningCircleImg(canvas, arrow) {
     ctx = canvas.getContext("2d")
     ctx.scale(1, 1 / 3)
     drawPentegram(ctx, canvas.width / 2, (canvas.height - 10) * 3 - 15, 15)
-
+    ctx.resetTransform()
+    ctx.lineWidth=3
     /*ctx.drawImage(document.getElementById("summoningCircleBaseImg"), 0, 50, 30, 10)*/
 
     if (arrow) {
@@ -214,17 +215,19 @@ function renderMainFightSide(side, left) {
     side = side.map(i => i).reverse() // Do this so that the target of attacks is always on the top line
 
     for (let demon of side) {
+        let demonElt = renderDemon(demon)
         if (demon.summoning) {
             let summonee = renderDemon(demon.summoning)
             if (demon.type === "circle") {
                 summonee.classList.add("arrivingCircle")
+                sideElt.appendChild(demonElt)
+                sideElt.appendChild(summonee)
             } else {
                 summonee.classList.add("arriving")
+                sideElt.appendChild(summonee)
+                sideElt.appendChild(demonElt)
             }
-            sideElt.appendChild(summonee)
         }
-        let demonElt = renderDemon(demon)
-        sideElt.appendChild(demonElt)
         if (demon.type === "circle") {
             if (demon.summoning) { demonElt.classList.add("leavingCircle"); }
             else { demonElt.classList.add("leaving"); }

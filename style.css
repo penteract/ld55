@@ -110,8 +110,9 @@ body {
 }
 
 /*Mark where the front of a side is*/
-.fightSide::before {
-    content: "->";
+#mainFight .fightSide::before {
+    content: "";
+    margin-inline-start:-80px
 }
 
 .fightSideLeft.fightParticipant {
@@ -274,7 +275,8 @@ position:absolute
 
 .arrivingCircle {
     animation: growCircle 1s 1s both;
-    margin-inline-end: -60px;
+    margin-inline-start: -80px;
+    /*margin-inline-end: 20px;*/
 }
 
 .leavingCircle {
