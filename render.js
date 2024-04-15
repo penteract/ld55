@@ -65,6 +65,8 @@ function renderDemon(demon, highlight) {
     let nameElt = document.createElement("div")
     nameElt.classList.add("demonName")
     nameElt.textContent = isKnownDemonName(demon.name) && demon.name || "???"
+    let nameLen = getNameLength(nameElt.textContent)
+    if (nameLen>60) {nameElt.style.scale=(60/nameLen);}
     elt.appendChild(nameElt)
 
     let imgElt = document.createElement("canvas")
@@ -410,12 +412,12 @@ function showBaseActions(inFight) {
     if (inFight) {
         fightActs.classList.remove("hidden")
         nonFightActs.classList.add("hidden")
-        selfDemon.classList.add("hidden")
+        selfDemon.classList.add("invisible")
     }
     else {
         fightActs.classList.add("hidden")
         nonFightActs.classList.remove("hidden")
-        selfDemon.classList.remove("hidden")
+        selfDemon.classList.remove("invisible")
     }
 }
 
@@ -452,4 +454,8 @@ function logMessage(msg) {
     log.prepend(document.createElement("br"))
     log.prepend(msg)
 }
-
+lengthFinder = document.getElementById("lengthFinder")
+function getNameLength(s){
+    lengthFinder.innerText=s
+    return lengthFinder.scrollWidth
+}

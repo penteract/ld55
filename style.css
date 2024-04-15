@@ -159,6 +159,18 @@ body {
 .hidden {
     display: none;
 }
+#lengthFinder{
+position:absolute
+}
+.demonName{
+    transform-origin:left;
+}
+.fightSideLeft .demonName{
+    transform-origin:right;
+}
+.invisible {
+    visibility: hidden;
+}
 
 .summonCount {
     display: inline-block;

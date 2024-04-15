@@ -14,7 +14,7 @@
 
         <canvas id="clock" width="30px" height="30px"></canvas>
 
-        <div id="selfDemon" class="hidden"></div>
+        <div id="selfDemon" class="invisible"></div>
 
         <div id="score">
             <div>Kills: <span id="scoreKills">0</span></div>
@@ -77,12 +77,12 @@
         </div>
     </div>
 
+    <div class="demonName invisible" id="lengthFinder"></div>
+    <img src="summoningCircle.png" id="summoningCircleBaseImg" class="hidden" />
 
     <script src="render.js"></script>
     <script src="serverComms.js"></script>
     <script src="gameloop.js"></script>
-
-    <img src="summoningCircle.png" id="summoningCircleBaseImg" class="hidden" />
 </body>
 
 </html>
