@@ -4,6 +4,7 @@ from random import random, choice, seed
 
 
 class TestAI(game.AI):
+    """
     def create_plan(self):
         if self.requests:
             if random() < 0.75:
@@ -33,6 +34,7 @@ class TestAI(game.AI):
                 return
 
         self.plan = "fire"
+        """
 
 
 game.AI = TestAI
