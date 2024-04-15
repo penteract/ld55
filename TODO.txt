@@ -1,9 +1,18 @@
 PRIORITIES:
-- log what happens to you (results of your actions and attempts to move you)
 - stats on death
-- intro + restart button
+- intro
+- restart button on death
+- Anything that makes what's happening clearer
+ - Don't show names most of the time?
 
 - basic AI
+
+- Final polish:
+Reduce timer to 5 seconds (or shorter; perhaps run multiple servers at different speeds)
+Do something about players that disconnect ("looking for a fight" sometimes being able to find people waiting/hiding would fix this)
+Consider persisting name and truename in localStorage
+
+
 
 
 // Make clickng on any action do something
