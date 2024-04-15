@@ -300,9 +300,9 @@ position:absolute
 }
 .fightSideLeft .dead .demonImg{
     animation: dyingLeft 1s forwards;
-    transform-origin: 70% 80%;
+    transform-origin: 50% 70%;
 }
 .fightSideRight .dead .demonImg{
     animation: dyingRight 1s forwards;
-    transform-origin: 30% 80%;
+    transform-origin: 50% 70%;
 }
