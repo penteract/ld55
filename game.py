@@ -470,8 +470,10 @@ class Demon(LinkedListElt):
         return "<"+self.__class__.__name__+" "+self.name+">"
 
     def end_tick(self):
+        #print([(Demon.demons[name].influence,n )for name, n in self.owed.items()])
         self.influence = 1+sum(k**0.5/(i+1)
-                               for k, i in enumerate(sorted((n*Demon.demons[name].influence for name, n in self.owed.items()), reverse=True)))
+                               for i,k in enumerate(sorted((n*Demon.demons[name].influence for name, n in self.owed.items()), reverse=True)))
+        #print(self.influence)
         self.stats.max_influence = max(
             self.stats.max_influence, self.influence)
         self.stats.age += 1
