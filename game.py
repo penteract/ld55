@@ -43,11 +43,10 @@ class FightSide:
             x = x.next
 
     def empty(self):
-        if self.front is None:
-            assert self.back is None
-            return True
-        assert self.back is not None, (self, list(self), self.front, self.back)
-        return False
+        back = self.back
+        while isinstance(back,Circle):
+            back=back.next
+        return back is None
 
     def __bool__(self):
         return not self.empty()
@@ -189,7 +188,7 @@ class LinkedListElt():
         self.fight = None
         self.next = None
         self.prev = None
-        self.side = 2
+        #self.side = 2
 
     def replace(self, elt):
         assert elt.fight is None
@@ -328,7 +327,7 @@ class Demon(LinkedListElt):
             k, _ = self.owed.popitem()
             Demon.demons[k].owes.pop(self.name)
         Demon.demons.pop(self.name)
-        self.requests = []
+        self.requests = {}
         self.last_requests = []
         Demon.dead_demons.append(self)  # for cleanup next tick
 
