@@ -29,7 +29,7 @@ function startClock(timeleft) {
     // drawClock(maxtime) should be called exactly when timeleft hits 0
     ticks = (MAX_TIME - timeleft + 0.99) | 0
     if (clockTimeout) {
-        window.clearInterval(clockTimeout)
+        window.clearTimeout(clockTimeout)
     }
     function runTick() {
         ticks += 1
@@ -74,8 +74,8 @@ function renderDemon(demon, highlight) {
 
     let powerElt = document.createElement("div")
     powerElt.classList.add("demonPower")
-    function fixedq(s){
-        n=+s
+    function fixedq(s) {
+        n = +s
         if (isNaN(n)) return "?";
         else return n.toFixed(1)
     }
@@ -395,6 +395,13 @@ function clearTempSelectAct(el) {
     el.classList.remove("tempSelected")
 }
 
+function renderStats(stats) {
+    document.getElementById("scoreKills").textContent = stats.direct_kills
+    document.getElementById("scoreWins").textContent = stats.wins
+    document.getElementById("scoreInfluence").textContent = (+stats.max_influence).toFixed(1)
+    document.getElementById("scoreAge").textContent = stats.age
+}
+
 function showBaseActions(inFight) {
     let nonFightActs = document.getElementById("baseActsNonFight")
     let fightActs = document.getElementById("baseActsFight")
@@ -445,3 +452,4 @@ function logMessage(msg) {
     log.prepend(document.createElement("br"))
     log.prepend(msg)
 }
+

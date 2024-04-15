@@ -27,12 +27,12 @@ function requestInfo() {
             console.log("in fight")
         }
         let summoned = undefined
-        function dotHundreds(n){
-            return (n/100).toFixed(2)
+        function dotHundreds(n) {
+            return (n / 100).toFixed(2)
             //return ""+(n/100|0)+"."+(n%100)
         }
-        function logTick(s){
-            logMessage("Year "+dotHundreds(lastDataTick+100)+": "+s)
+        function logTick(s) {
+            logMessage("Year " + dotHundreds(lastDataTick + 100) + ": " + s)
         }
         conceded = false
         for (let msg of resp.history) {
@@ -41,7 +41,7 @@ function requestInfo() {
                 if (plan == "request") logTick("You asked for help from " + target);
                 if (plan == "summon") logTick("You called in a favour from " + target);
                 if (plan == "concede") {
-                    logTick("You conceded the fight");
+                    logTick("You surrendered the fight");
                     conceded = true
                 }
             }
@@ -60,17 +60,22 @@ function requestInfo() {
                 let [m, reason, loser, mySide] = msg;
                 if (loser === mySide) {
                     if (reason == "concede") {
-                        if(!conceded){logTick("The fight you were in was conceded")}
+                        if (!conceded) { logTick("The fight you were in was surrendered") }
                     }
                     else if (reason == "side eliminated") { logTick("There was no-one left on the opposing side of the fight") }
                     else { console.log("surprise??", reason, msg, history) }
                 }
                 else {
-                    if (reason == "concede") { logTick("The leader of your opponent's side conceded") }
+                    if (reason == "concede") { logTick("The leader of your opponent's side surrendered") }
                     else if (reason == "side eliminated") { logTick("Everyone on the opposing side was eliminated") }
                     else { console.log("surprise??", reason, msg, history) }
                 }
             }
+        }
+
+        if (resp.dead) {
+            logTick("You died! Refresh the page to respawn as a new demon.")
+            window.clearTimeout(clockTimeout)
         }
 
         updateKnowledge(resp)
@@ -80,6 +85,7 @@ function requestInfo() {
         renderSummons(resp.owed)
         renderDebts(resp.owes)
         renderPossibleRequests()
+        renderStats(resp.stats)
         if (!globresp.dead) {
             requestTimeout = window.setTimeout(requestInfo, nextTick * 1000)
         }

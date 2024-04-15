@@ -65,6 +65,7 @@ class Stats:
     team_kills: int = 0
     wins: int = 0
     max_influence: int = 1
+    age: int = 0
 
     def serialize(self):
         return asdict(self)
@@ -157,7 +158,7 @@ class Fight:
         for demon in self.opp(loser):
             if isinstance(demon, Demon):
                 demon.stats.team_kills += 1
-                demon.heal(1)
+                # demon.heal(1)
                 if demon.plan == "fire":
                     demon.stats.direct_kills += 1
                     demon.heal(1)
@@ -471,6 +472,9 @@ class Demon(LinkedListElt):
     def end_tick(self):
         self.influence = 1+sum(k**0.5/(i+1)
                                for k, i in enumerate(sorted((n*Demon.demons[name].influence for name, n in self.owed.items()), reverse=True)))
+        self.stats.max_influence = max(
+            self.stats.max_influence, self.influence)
+        self.stats.age += 1
         self.create_plan()
 
 
