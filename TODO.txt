@@ -58,7 +58,7 @@ Consider changing the rules/strategy
 
 Better AI:
   key info in fight: demons in front, demons behind, demons on enemy side.
-  if k*front is more than enemies, don't surrender (you'll probably be able to surrender next turn).
+  // if k*front is more than enemies, don't surrender (you'll probably be able to surrender next turn).
   if front is more than enemies, fire (no reason to waste favours)
   if your side is losing, try to escape (accept requests)
 
@@ -71,3 +71,4 @@ Prepare and submit the game
   BUGS:
   without accepting invitations being implemented, hrechnexgraw ended up able to summon something. (not a bug; could have been caused by opponent's concession)
   Display the fight associated with the summoner, not the fight the summoner is currently in?
+  The point at which a displayed name is cut off can be inconsistent (name hrechnexgraw is displayed as exgraw in a fight, making it look like there's a bug with displayign the wrong names, or making the fight you accept a request to look different from the request)

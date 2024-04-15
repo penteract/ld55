@@ -25,7 +25,10 @@
                 <h3 id="headerBaseActs">Basic Actions</h3>
                 <div id="baseActsFight" class="hidden">
                     <div class="act" onclick="act(this,'fire')" id="actFire">🔥 Attack</div>
-                    <div class="act" onclick="act(this,'concede')" id="actConcede">🏳️ Concede</div>
+                    <div class="act" onclick="act(this,'concede')" id="actConcede">🏳️ Surrender</div>
+                    <!-- TODO: some indicator that concession will only work if you're the leader?
+                        There's no reason to use otherwise - leader cannot be summoned away before concession goes through
+                    -->
                 </div>
                 <div id="baseActsNonFight">
                     <div class="act" onclick="act(this,'wait')">🕒 Wait</div>
@@ -45,8 +48,9 @@
             <div class="actionColInner">
                 <h3 id="headerRequests" title="Ask for help in a fight, but beware: you will owe them a favour">Request
                     Help</h3>
+                <div class="act" onclick="act(this,'request','Unknown')" id="actRequestUnk">❓ From an unknown demon
+                </div>
                 <div id="requestActionsList"></div>
-                <div class="act" onclick="act(this,'request','Unknown')" id="actRequestUnk">❓ Unknown</div>
             </div>
         </div>
 
@@ -54,7 +58,7 @@
             <div class="actionColInner">
                 <h3 id="headerInvitations"
                     title="Respond to another's plea for help. If you survive the fight, they will owe you a debt">
-                    Accept Invitation</h3>
+                    Accept Request</h3>
                 <div id="invitationsList"></div>
             </div>
         </div>

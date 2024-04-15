@@ -1,21 +1,21 @@
 
 function requestInfo() {
 
-    let url = "/update?name=" + myName+"&truename="+truename
+    let url = "/update?name=" + myName + "&truename=" + truename
     httpGetAsync(url, function (resp) {
         resp = JSON.parse(resp)
         globresp = resp
         let nextTick = +resp.nexttick
         startClock(nextTick)
         let isInFight = resp.inFight
-        lastDataTick=resp.tick
+        lastDataTick = resp.tick
 
-        let prevSelection=undefined
-        if(document.getElementById("baseActsNonFight").contains(document.getElementsByClassName("selected")[0])){
+        let prevSelection = undefined
+        if (document.getElementById("baseActsNonFight").contains(document.getElementsByClassName("selected")[0])) {
             prevSelection = document.getElementsByClassName("selected")[0]
         }
         clearSelected()
-        if(prevSelection && !isInFight){
+        if (prevSelection && !isInFight) {
             prevSelection.click()
         }
 
@@ -23,50 +23,50 @@ function requestInfo() {
 
         if (!isInFight) {
             console.log("No fight!")
-        }else{
+        } else {
             console.log("in fight")
         }
-        let summoned=undefined
-        for(let msg of resp.history){
-            if(msg[0]=="attempted action"){
-                let [m,plan,target] = msg;
-                if(plan=="request") logMessage("You asked for help from "+target);
-                if(plan=="summon") logMessage("You called in a favour from "+target);
-                if(plan=="concede") logMessage("You conceded the fight");
+        let summoned = undefined
+        for (let msg of resp.history) {
+            if (msg[0] == "attempted action") {
+                let [m, plan, target] = msg;
+                if (plan == "request") logMessage("You asked for help from " + target);
+                if (plan == "summon") logMessage("You called in a favour from " + target);
+                if (plan == "concede") logMessage("You conceded the fight");
             }
-            if(msg[0]=="summon attempt"){
-                let [m,ctype,summoner,success] = msg;
-                let suffix = success?summoned?" overriding a junior demon's power":"":" but a senior demon's summon had priority"
-                if (ctype==2){
-                    logMessage("You agreed to help "+summoner+suffix);
+            if (msg[0] == "summon attempt") {
+                let [m, ctype, summoner, success] = msg;
+                let suffix = success ? summoned ? " overriding a junior demon's power" : "" : " but a senior demon's summon had priority"
+                if (ctype == 2) {
+                    logMessage("You agreed to help " + summoner + suffix);
                 }
-                if (ctype==1){
-                    logMessage(summoner+" summoned you to repay your debt"+suffix);
+                if (ctype == 1) {
+                    logMessage(summoner + " summoned you to repay your debt" + suffix);
                 }
-                if (success){summoned = summoner}
+                if (success) { summoned = summoner }
             }
-            if(msg[0]=="fight ended"){
-                let [m,reason,loser,mySide] = msg;
-                if (loser===mySide){
-                    if (reason=="concede") {logMessage("The fight you were in was conceded")}
-                    else if (reason=="side eliminated") {logMessage("everyone on your side was eliminated")}
-                    else{console.log("surprise??",reason,msg,history)}
+            if (msg[0] == "fight ended") {
+                let [m, reason, loser, mySide] = msg;
+                if (loser === mySide) {
+                    if (reason == "concede") { logMessage("The fight you were in was conceded") }
+                    else if (reason == "side eliminated") { logMessage("everyone on your side was eliminated") }
+                    else { console.log("surprise??", reason, msg, history) }
                 }
-                else{
-                    if (reason=="concede") {logMessage("The leader of your opponent's side conceded")}
-                    else if (reason=="side eliminated") {logMessage("Everyone on the opposing side was eliminated")}
-                    else{console.log("surprise??",reason,msg,history)}
+                else {
+                    if (reason == "concede") { logMessage("The leader of your opponent's side conceded") }
+                    else if (reason == "side eliminated") { logMessage("Everyone on the opposing side was eliminated") }
+                    else { console.log("surprise??", reason, msg, history) }
                 }
             }
         }
 
         updateKnowledge(resp)
-        renderMainFight(resp.initialFight?.sides??[[],[]],isInFight,resp.newFight)
+        renderMainFight(resp.initialFight?.sides ?? [[], []], isInFight, resp.newFight)
         renderSelf(resp)
         renderInvitations(resp.requests)
         renderSummons(resp.owed)
         renderPossibleRequests()
-        if(!globresp.dead){
+        if (!globresp.dead) {
             requestTimeout = window.setTimeout(requestInfo, nextTick * 1000)
         }
     })
@@ -142,14 +142,15 @@ function lookupDemon(demonName) {
 }
 
 function isKnownDemonName(demonName) {
-    return knownDemons[demonName] !== undefined
+    // return knownDemons[demonName] !== undefined
+    return true
 }
-myName=undefined
-truename=undefined
+myName = undefined
+truename = undefined
 
 //Initialization
-requestNewName(txt=>{
-    [myName,truename]=txt.split("\n")
+requestNewName(txt => {
+    [myName, truename] = txt.split("\n")
     requestInfo()
 })
 
