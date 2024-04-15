@@ -76,7 +76,7 @@ function renderDemon(demon, highlight) {
     powerElt.classList.add("demonPower")
     function fixedq(s){
         n=+s
-        if (n===NaN) return "?";
+        if (isNaN(n)) return "?";
         else return n.toFixed(1)
     }
     powerElt.textContent = fixedq(demon.influence)
