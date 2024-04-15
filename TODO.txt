@@ -9,18 +9,18 @@ Get animations
      - result of any fight that ends (concession or one side being empty (killed or summoned away))
 
 Handle Game Over appropriately:
- don't just 400
+ //don't just 400
  report kills, wins, age, debts
 
 
 
 Get animations working properly
-  - track what happens on the server side
+  //- track what happens on the server side
     // - fix summons so that they appear in the right places (create placeholders that exist within the linked list)
-       - - summoning circles have been added to track this - check they're handled correctly (only last for the turn they're supposed to etc)
+       //- - summoning circles have been added to track this - check they're handled correctly (only last for the turn they're supposed to etc)
   - make shots hit the right targets while summoning attempts are made and deaths occur;
-       then animate summons (animate horizontal shrinking+growing; consider how to manage fizzles)
-
+    //   then animate summons (animate horizontal shrinking+growing; consider how to manage fizzles)
+  - death animations; health reduction when hit
   - design some animations (possibly use an actual image editor rather than relying on canvas commands)
 
 Rendering
@@ -53,3 +53,4 @@ Prepare and submit the game
 
   BUGS:
   without accepting invitations being implemented, hrechnexgraw ended up able to summon something. (not a bug; could have been caused by opponent's concession)
+  Display the fight associated with the summoner, not the fight the summoner is currently in?

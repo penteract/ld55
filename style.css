@@ -1,6 +1,6 @@
 #mainFight {
     width: 100%;
-    height: 300px;
+    min-height: 300px;
     border: 2px solid black;
     position:relative;/*makes it an anchor of*/
 }
