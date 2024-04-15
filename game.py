@@ -652,15 +652,15 @@ def tick():
         if fight.side0.empty() or fight.side1.empty():
             # TODO: pay out any rewards for winning fights? (score at least)
             fight.end("side eliminated", int(fight.side1.empty()))
-
+    # makes it faster to pick a random demon
+    Demon.dList = list(Demon.demons)
     find_matchups()
 
     # create new demons if there aren't enough
     if len(Demon.demons) < MIN_DEMONS:
         for i in range((MIN_DEMONS+10 - len(Demon.demons))//10):
-            AI()
-    # makes it faster to pick a random demon
-    Demon.dList = list(Demon.demons)
+            Demon.dList.append(AI())
+
 
     # AIs make their choices based on the info they have at the start of the turn (now)
     for d in Demon.demons.values():
@@ -679,23 +679,15 @@ def create_fight(side0, side1):
 
 
 def find_matchups():
-    looking = [d for d in Demon.looking if not d.fight]
-    looking.sort(key=lambda d: d.name)
-    Demon.looking = set()
-
-    # temoprary - just pairs up demons looking demons as 1v1s
-    # TODO: be more sophisticated
-
-    # ideas: random matches, or try by age, power, score. Consider pulling some people who weren't looking for one into fights.
-    # prioritise pairing humans
-    # pair humans with AI after they've been looking for a certain number of turns, or if they check a box?
-    # bigger fights than 1v1s
-    # keep prior teams?
-
-    for i in range(0, len(looking), 2):
-        ds = looking[i:i+2]
-        if len(ds) == 2:
-            create_fight(ds[0], ds[1])
+    for d in Demon.looking:
+        for i in range(2):
+            if d.fight:
+                break
+            target = Demon.demons[choice(Demon.dList)]
+            if target is not d and not target.fight:
+                if target.plan == "look" or random()<0.1:
+                    print(d.fight,target.fight)
+                    create_fight(d,target)
 
 
 def init(num_demons=100):
