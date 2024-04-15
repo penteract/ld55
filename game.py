@@ -140,7 +140,7 @@ class Fight:
         for side in [self.side0, self.side1]:
             for d in list(side):
                 d.remove()
-                if d.side != loser:
+                if d.side != loser and isinstance(d, Demon):
                     d.stats.wins += 1
                 if isinstance(d, Demon) and not d.acted:
                     d.plan = "wait"
@@ -467,9 +467,10 @@ class Demon(LinkedListElt):
 
     def __repr__(self):
         return "<"+self.__class__.__name__+" "+self.name+">"
+
     def end_tick(self):
-        self.influence = 1+sum( k**0.5/(i+1)
-            for k,i in enumerate(sorted(n*Demon.demons[name].influence for name,n in self.owed.items(),reverse=True)))
+        self.influence = 1+sum(k**0.5/(i+1)
+                               for k, i in enumerate(sorted((n*Demon.demons[name].influence for name, n in self.owed.items()), reverse=True)))
         self.create_plan()
 
 
