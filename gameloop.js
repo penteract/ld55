@@ -65,6 +65,7 @@ function requestInfo() {
         renderSelf(resp)
         renderInvitations(resp.requests)
         renderSummons(resp.owed)
+        renderDebts(resp.owes)
         renderPossibleRequests()
         if (!globresp.dead) {
             requestTimeout = window.setTimeout(requestInfo, nextTick * 1000)
@@ -101,6 +102,10 @@ function updateKnowledge(resp) {
         let name = debt[0]
         knownNames[name] = 1
     }
+    for (let debt of resp.owes) {
+        let name = debt[0]
+        knownNames[name] = 1
+    }
 
     // TODO: learn names of requests we attempted (in particular to unknown)
     // also learn use previous fight info in case a name was learned to learn prev known hp/power (client can store this, no need for server to send)
@@ -115,8 +120,10 @@ function updateKnowledge(resp) {
     for (let fight of knownFights) {
         for (let side of fight) {
             for (let demon of side) {
-                if (knownNames[demon.name] === 1) {
-                    knownDemons[demon.name] = demon
+                if (demon.type === "demon") {
+                    if (knownNames[demon.name] === 1 || true) { // try just knowing all names
+                        knownDemons[demon.name] = demon
+                    }
                 }
             }
         }

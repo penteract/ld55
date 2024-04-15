@@ -543,6 +543,7 @@ class Player(Demon):
             if (req := Demon.demons.get(name)) and req.fight:
                 result["requests"].append((name, req.fight.serialize()))
         result["owed"] = [(k, c) for k, c in self.owed.items() if c >= 1]
+        result["owes"] = [(k, c) for k, c in self.owes.items() if c >= 1]
         result["changedFight"] = (self.fight is not self.initial_fight)
         if result["changedFight"] and self.fight is not None:
             result["newFight"] = self.fight.serialize()
