@@ -33,12 +33,16 @@ function requestInfo() {
         function logTick(s){
             logMessage("Year "+dotHundreds(lastDataTick+100)+": "+s)
         }
+        conceded = false
         for (let msg of resp.history) {
             if (msg[0] == "attempted action") {
                 let [m, plan, target] = msg;
                 if (plan == "request") logTick("You asked for help from " + target);
                 if (plan == "summon") logTick("You called in a favour from " + target);
-                if (plan == "concede") logTick("You conceded the fight");
+                if (plan == "concede") {
+                    logTick("You conceded the fight");
+                    conceded = true
+                }
             }
             if (msg[0] == "summon attempt") {
                 let [m, ctype, summoner, success] = msg;
@@ -54,7 +58,9 @@ function requestInfo() {
             if (msg[0] == "fight ended") {
                 let [m, reason, loser, mySide] = msg;
                 if (loser === mySide) {
-                    if (reason == "concede") { logTick("The fight you were in was conceded") }
+                    if (reason == "concede") {
+                        if(!conceded){logTick("The fight you were in was conceded")}
+                    }
                     else if (reason == "side eliminated") { logTick("There was no-one left on the opposing side of the fight") }
                     else { console.log("surprise??", reason, msg, history) }
                 }
