@@ -31,34 +31,6 @@ def win(d):
         d.win()
 
 
-class FightSide:
-    def __init__(self):
-        # a linked list of demons
-        self.front = None
-        self.back = None
-
-    def __iter__(self):
-        x = self.back
-        while x is not None:
-            yield x
-            x = x.next
-
-    def empty(self):
-        back = self.back
-        while isinstance(back, SummoningCircle):
-            back = back.next
-        return back is None
-
-    def __bool__(self):
-        return not self.empty()
-
-    def __str__(self):
-        return "[*"+",".join(d.name for d in self)+"*]"
-
-    def serialize(self):
-        return [d.serialize() for d in self]
-
-
 @dataclass
 class Stats:
     direct_kills: int = 0
@@ -92,6 +64,42 @@ class dset():
 
     def __iter__(self):
         return iter(self.d)
+
+
+class FightSide:
+    def __init__(self):
+        # a linked list of demons
+        self.front = None
+        self.back = None
+
+    def __iter__(self):
+        x = self.back
+        while x is not None:
+            yield x
+            x = x.next
+
+    def empty(self):
+        back = self.back
+        while isinstance(back, SummoningCircle):
+            back = back.next
+        return back is None
+
+    def __bool__(self):
+        return not self.empty()
+
+    def __str__(self):
+        return "[*"+",".join(d.name for d in self)+"*]"
+
+    def serialize(self):
+        return [d.serialize() for d in self]
+    def store_len(self):
+        self.count_demons=0
+        self.count_circles=0
+        for item in self:
+            item.demons_in_front = self.count_demons
+            item.circles_in_front = self.count_circles
+            self.count_demons+=isinstance(item,Demon)
+            self.count_circles+=isinstance(item,SummoningCircle)
 
 
 class Fight:
@@ -162,6 +170,9 @@ class Fight:
                 if demon.plan == "fire":
                     demon.stats.direct_kills += 1
                     demon.heal(1)
+    def store_len(self):
+        self.side0.store_len()
+        self.side1.store_len()
 
     def __str__(self):
         return repr(self)+str(self.side0)+"vs"+str(self.side1)
@@ -235,7 +246,10 @@ class LinkedListElt():
         self.prev = None
         self.fight = None
         self.side = 2
-
+    def get_side(self):
+        return self.fight[self.side]
+    def other_side(self):
+        return self.fight[1-self.side]
 
 class SummoningCircle(LinkedListElt):
     def __init__(self, summoner, time):
@@ -482,12 +496,12 @@ class Demon(LinkedListElt):
 
 class AI(Demon):
     def create_plan(self):
+        {r:self.rate_summon(circ) for r,circ in self.requests.items()}
         if self.requests:
             if random() < 0.75:
                 self.plan = "answer"
                 self.plan_target = choice(list(self.requests))
                 return
-
         if self.fight is None:
             self.plan = "look"
             return
@@ -510,7 +524,8 @@ class AI(Demon):
                 return
 
         self.plan = "fire"
-
+    def rate_summon(circle):
+        return circle.demons_in_front+0.5+circle.fight
     def should_concede(self):
         opp = list(self.fight.opp(self.side))
         # if I don't concede now, maximum damage that could be incoming before i get a chance to next turn?
@@ -660,8 +675,8 @@ def tick():
     if len(Demon.demons) < MIN_DEMONS:
         for i in range((MIN_DEMONS+10 - len(Demon.demons))//10):
             Demon.dList.append(AI())
-
-
+    for fight in Fight.fights:
+        fight.store_len()
     # AIs make their choices based on the info they have at the start of the turn (now)
     for d in Demon.demons.values():
         d.end_tick()
