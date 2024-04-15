@@ -1,7 +1,7 @@
 
 function requestInfo() {
 
-    let url = "/update?name=" + myName + "&truename=" + truename
+    let url = "./update?name=" + myName + "&truename=" + truename
     httpGetAsync(url, function (resp) {
         resp = JSON.parse(resp)
         globresp = resp
