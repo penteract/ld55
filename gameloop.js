@@ -27,34 +27,37 @@ function requestInfo() {
             console.log("in fight")
         }
         let summoned = undefined
+        function logTick(s){
+            logMessage(`Year ${lastDataTick}: `+s)
+        }
         for (let msg of resp.history) {
             if (msg[0] == "attempted action") {
                 let [m, plan, target] = msg;
-                if (plan == "request") logMessage("You asked for help from " + target);
-                if (plan == "summon") logMessage("You called in a favour from " + target);
-                if (plan == "concede") logMessage("You conceded the fight");
+                if (plan == "request") logTick("You asked for help from " + target);
+                if (plan == "summon") logTick("You called in a favour from " + target);
+                if (plan == "concede") logTick("You conceded the fight");
             }
             if (msg[0] == "summon attempt") {
                 let [m, ctype, summoner, success] = msg;
                 let suffix = success ? summoned ? " overriding a junior demon's power" : "" : " but a senior demon's summon had priority"
                 if (ctype == 2) {
-                    logMessage("You agreed to help " + summoner + suffix);
+                    logTick("You agreed to help " + summoner + suffix);
                 }
                 if (ctype == 1) {
-                    logMessage(summoner + " summoned you to repay your debt" + suffix);
+                    logTick(summoner + " summoned you to repay your debt" + suffix);
                 }
                 if (success) { summoned = summoner }
             }
             if (msg[0] == "fight ended") {
                 let [m, reason, loser, mySide] = msg;
                 if (loser === mySide) {
-                    if (reason == "concede") { logMessage("The fight you were in was conceded") }
-                    else if (reason == "side eliminated") { logMessage("everyone on your side was eliminated") }
+                    if (reason == "concede") { logTick("The fight you were in was conceded") }
+                    else if (reason == "side eliminated") { logTick("There was no-one left on the opposing side of the fight") }
                     else { console.log("surprise??", reason, msg, history) }
                 }
                 else {
-                    if (reason == "concede") { logMessage("The leader of your opponent's side conceded") }
-                    else if (reason == "side eliminated") { logMessage("Everyone on the opposing side was eliminated") }
+                    if (reason == "concede") { logTick("The leader of your opponent's side conceded") }
+                    else if (reason == "side eliminated") { logTick("Everyone on the opposing side was eliminated") }
                     else { console.log("surprise??", reason, msg, history) }
                 }
             }

@@ -539,9 +539,9 @@ class Player(Demon):
         if self.initial_fight is not None:
             result["initialFight"] = self.initial_fight.long_serialize()
         result["requests"] = []
-        for name in self.requests:
-            if (req := Demon.demons.get(name)) and req.fight:
-                result["requests"].append((name, req.fight.serialize()))
+        for (name,circle) in self.requests.items():
+            if circle.fight:
+                result["requests"].append((name, circle.fight.serialize()))
         result["owed"] = [(k, c) for k, c in self.owed.items() if c >= 1]
         result["changedFight"] = (self.fight is not self.initial_fight)
         if result["changedFight"] and self.fight is not None:
