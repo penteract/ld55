@@ -27,8 +27,11 @@ function requestInfo() {
             console.log("in fight")
         }
         let summoned = undefined
+        function dotHundreds(n){
+            return ""+(n/100|0)+"."+(n%100)
+        }
         function logTick(s){
-            logMessage(`Year ${lastDataTick}: `+s)
+            logMessage("Year "+dotHundreds(lastDataTick+100)+": "+s)
         }
         for (let msg of resp.history) {
             if (msg[0] == "attempted action") {
