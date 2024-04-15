@@ -66,7 +66,7 @@ function renderDemon(demon, highlight) {
     nameElt.classList.add("demonName")
     nameElt.textContent = isKnownDemonName(demon.name) && demon.name || "???"
     let nameLen = getNameLength(nameElt.textContent)
-    if (nameLen>60) {nameElt.style.scale=(60/nameLen);}
+    if (nameLen > 60) { nameElt.style.scale = (60 / nameLen); }
     elt.appendChild(nameElt)
 
     let imgElt = document.createElement("canvas")
@@ -140,13 +140,18 @@ function renderSummoningCircle(summoner, highlight) {
 
     let imgElt = document.createElement("canvas")
     imgElt.classList.add("summoningCircleImg")
-    renderSummoningCircleImg(imgElt)
+    renderSummoningCircleImg(imgElt, (summoner.name === highlight))
     elt.appendChild(imgElt)
+
+    let dummyPowerElt = document.createElement("div")
+    dummyPowerElt.classList.add("invisible")
+    dummyPowerElt.textContent = 1.0
+    elt.appendChild(dummyPowerElt)
 
     return elt
 }
 
-function renderSummoningCircleImg(canvas) {
+function renderSummoningCircleImg(canvas, arrow) {
     canvas.width = 30
     canvas.height = 60
     ctx = canvas.getContext("2d")
@@ -154,6 +159,18 @@ function renderSummoningCircleImg(canvas) {
     drawPentegram(ctx, canvas.width / 2, (canvas.height - 10) * 3 - 15, 15)
 
     /*ctx.drawImage(document.getElementById("summoningCircleBaseImg"), 0, 50, 30, 10)*/
+
+    if (arrow) {
+        ctx.strokeStyle = "black"
+        ctx.beginPath()
+        ctx.moveTo(canvas.width / 2, canvas.height * 3 / 4)
+        ctx.lineTo(canvas.width / 2, canvas.height / 4)
+        ctx.moveTo(canvas.width / 2, canvas.height * 3 / 4)
+        ctx.lineTo(canvas.width / 4, canvas.height / 2)
+        ctx.moveTo(canvas.width / 2, canvas.height * 3 / 4)
+        ctx.lineTo(canvas.width * 3 / 4, canvas.height / 2)
+        ctx.stroke()
+    }
 }
 
 function renderFightSide(side, left = true, highlight) {
@@ -213,7 +230,7 @@ function renderMainFightSide(side, left) {
             else { demonElt.classList.add("leaving"); }
         } else {
             targetDict[demon.name] = demonElt
-            if(demon.dead){
+            if (demon.dead) {
                 demonElt.classList.add("dead")
             }
             if (demon.summoned_this_turn || demon.dead) {
@@ -458,7 +475,7 @@ function logMessage(msg) {
     log.prepend(msg)
 }
 lengthFinder = document.getElementById("lengthFinder")
-function getNameLength(s){
-    lengthFinder.innerText=s
+function getNameLength(s) {
+    lengthFinder.innerText = s
     return lengthFinder.scrollWidth
 }
