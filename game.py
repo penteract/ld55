@@ -496,7 +496,7 @@ class Demon(LinkedListElt):
 
 class AI(Demon):
     def create_plan(self):
-        {r:self.rate_summon(circ) for r,circ in self.requests.items()}
+        {r:self.rate_summon(circ) for r,circ in self.requests.items() if circ.fight}
         if self.requests:
             if random() < 0.75:
                 self.plan = "answer"
@@ -524,8 +524,8 @@ class AI(Demon):
                 return
 
         self.plan = "fire"
-    def rate_summon(circle):
-        return circle.demons_in_front+0.5+circle.fight
+    def rate_summon(self,circle):
+        return circle.demons_in_front*0.9+0.5+circle.get_side().count_demons*0.1 - circle.other_side().count_demons
     def should_concede(self):
         opp = list(self.fight.opp(self.side))
         # if I don't concede now, maximum damage that could be incoming before i get a chance to next turn?
