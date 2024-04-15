@@ -227,6 +227,8 @@ function renderMainFightSide(side, left) {
                 sideElt.appendChild(summonee)
                 sideElt.appendChild(demonElt)
             }
+        }else{
+            sideElt.appendChild(demonElt)
         }
         if (demon.type === "circle") {
             if (demon.summoning) { demonElt.classList.add("leavingCircle"); }
