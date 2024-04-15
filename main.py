@@ -1,3 +1,4 @@
+#! /usr/bin/env python3
 from http.server import SimpleHTTPRequestHandler, HTTPServer
 # from http.server import *
 from urllib.parse import urlparse, parse_qs
