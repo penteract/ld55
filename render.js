@@ -101,8 +101,8 @@ function renderDemonImg(demon, canvas) {
     }
 
     if (demon.summoned_this_turn) {
-        ctx.scale(1,1/3)
-        drawPentegram(ctx,canvas.width/2,(canvas.height-10)*3-15 ,15)
+        ctx.scale(1, 1 / 3)
+        drawPentegram(ctx, canvas.width / 2, (canvas.height - 10) * 3 - 15, 15)
         ctx.resetTransform()
         //ctx.drawImage(document.getElementById("summoningCircleBaseImg"), 0, 42, 30, 10)
     }
@@ -146,8 +146,8 @@ function renderSummoningCircleImg(canvas) {
     canvas.width = 30
     canvas.height = 60
     ctx = canvas.getContext("2d")
-    ctx.scale(1,1/3)
-    drawPentegram(ctx,canvas.width/2,(canvas.height-10)*3-15,15)
+    ctx.scale(1, 1 / 3)
+    drawPentegram(ctx, canvas.width / 2, (canvas.height - 10) * 3 - 15, 15)
 
     /*ctx.drawImage(document.getElementById("summoningCircleBaseImg"), 0, 50, 30, 10)*/
 }
@@ -193,28 +193,28 @@ function renderMainFightSide(side, left) {
     side = side.map(i => i).reverse() // Do this so that the target of attacks is always on the top line
 
     for (let demon of side) {
-        if(demon.summoning){
+        if (demon.summoning) {
             let summonee = renderDemon(demon.summoning)
-            if(demon.type === "circle"){
+            if (demon.type === "circle") {
                 summonee.classList.add("arrivingCircle")
-            }else{
+            } else {
                 summonee.classList.add("arriving")
             }
             sideElt.appendChild(summonee)
         }
         let demonElt = renderDemon(demon)
         sideElt.appendChild(demonElt)
-        if(demon.type==="circle"){
-            if(demon.summoning) {demonElt.classList.add("leavingCircle");}
-            else {demonElt.classList.add("leaving");}
-        }else{
+        if (demon.type === "circle") {
+            if (demon.summoning) { demonElt.classList.add("leavingCircle"); }
+            else { demonElt.classList.add("leaving"); }
+        } else {
             targetDict[demon.name] = demonElt
-            if (demon.summoned_this_turn || demon.dead){
+            if (demon.summoned_this_turn || demon.dead) {
                 demonElt.classList.add("leaving")
             }
         }
-        if(demon.fired){
-            fireballs.push([demonElt,demon.fired])
+        if (demon.fired) {
+            fireballs.push([demonElt, demon.fired])
             demonElt.classList.add("firing")
         }
     }
@@ -223,14 +223,14 @@ function renderMainFightSide(side, left) {
 }
 var targetDict;
 var fireballs;
-function renderMainFight(initialFight,isInFight, newFight) {
+function renderMainFight(initialFight, isInFight, newFight) {
     let mainFightElt = document.getElementById("mainFight")
     mainFightElt.innerHTML = ""
     //mainFightElt.appendChild(renderFight(fight))
     let elt = document.createElement("div")
     elt.classList.add("fight")
-    targetDict={}
-    fireballs=[]
+    targetDict = {}
+    fireballs = []
 
     let leftSide = renderMainFightSide(initialFight[0], true)
     elt.appendChild(leftSide)
@@ -243,16 +243,16 @@ function renderMainFight(initialFight,isInFight, newFight) {
     elt.appendChild(rightSide)
     mainFightElt.appendChild(elt)
     //elt.
-    for (let [src,target] of fireballs){
-        mkFireball(src,targetDict[target],mainFightElt)
+    for (let [src, target] of fireballs) {
+        mkFireball(src, targetDict[target], mainFightElt)
     }
     //Render a new fight on top of the old one
-    if(newFight){
+    if (newFight) {
         let newF = renderFight(newFight)
         newF.classList.add("newFight")
         mainFightElt.appendChild(newF)
     }
-    if(newFight || !isInFight){
+    if (newFight || !isInFight) {
         elt.classList.add("vanishing")
     }
 }
@@ -376,34 +376,35 @@ function showBaseActions(inFight) {
     }
 }
 
-function drawPentegram(ctx,x,y,r){
-    ctx.strokeStyle="red"
-    for (i=0;i<5;i++){
+function drawPentegram(ctx, x, y, r) {
+    ctx.strokeStyle = "red"
+    for (i = 0; i < 5; i++) {
         ctx.beginPath()
-        ctx.arc(x,y,r,i*(Math.PI*2/5)-Math.PI/2,(i+2)*(Math.PI*2/5)-Math.PI/2)
+        ctx.arc(x, y, r, i * (Math.PI * 2 / 5) - Math.PI / 2, (i + 2) * (Math.PI * 2 / 5) - Math.PI / 2)
         ctx.closePath()
         ctx.stroke()
     }
 }
-function getCenter(el){
+function getCenter(el) {
     let r = el.getBoundingClientRect()
-    return [r.x+r.width/2+window.pageXOffset, r.y+r.height/2+window.pageYOffset]
+    return [r.x + r.width / 2 + window.pageXOffset, r.y + r.height / 2 + window.pageYOffset]
 }
-function mkFireball(src,target,parent){
-    console.log("fireball",src,target,parent)
-    let [sx,sy] = getCenter(src)
-    let [ex,ey] = getCenter(target)
+function mkFireball(src, target, parent) {
+    console.log("fireball", src, target, parent)
+    let [sx, sy] = getCenter(src)
+    let [ex, ey] = getCenter(target)
     fb = document.createElement("div")
     parent.prepend(fb)
-    fb.style.left=sx+"px"
-    fb.style.top=sy+"px"
+    fb.style.left = sx + "px"
+    fb.style.top = sy + "px"
     fb.classList.add("fireball")
-    fb.offsetWidth|=0;
-    fb.style.left=ex+"px"
-    fb.style.top=ey+"px"
+    fb.offsetWidth |= 0;
+    fb.style.left = ex + "px"
+    fb.style.top = ey + "px"
     return fb
 }
-function logMessage(msg){
+
+function logMessage(msg) {
     let log = document.getElementById("log")
     log.prepend(document.createElement("br"))
     log.prepend(msg)
