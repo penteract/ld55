@@ -674,7 +674,7 @@ def tick():
     # create new demons if there aren't enough
     if len(Demon.demons) < MIN_DEMONS:
         for i in range((MIN_DEMONS+10 - len(Demon.demons))//10):
-            Demon.dList.append(AI())
+            Demon.dList.append(AI().name)
     for fight in Fight.fights:
         fight.store_len()
     # AIs make their choices based on the info they have at the start of the turn (now)

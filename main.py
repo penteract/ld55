@@ -108,7 +108,15 @@ class Handler(SimpleHTTPRequestHandler):
                 headers = {}
                 headers["Content-Type"] = "application/json; charset=utf-8"
                 dat["nexttick"] = (last_tick - time.time() + TICK_TIME + 0.1)
-                self.send_string(json.dumps(dat), headers)
+                try:
+                    dat_json = json.dumps(dat)
+                except Exception as e:
+                    print("=========Couldn't dump data============")
+                    print(dat)
+                    print("========tried to dump the above========")
+                    self.send_error(400, "Tried to dump invalid object")
+                self.send_string(dat_json, headers)
+
         else:
             self.send_error(404)
 
