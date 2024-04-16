@@ -1,6 +1,6 @@
 Math.TAU = 2 * Math.PI
 
-MAX_TIME = 10
+MAX_TIME = 4
 MAXHEALTH = 10
 
 function drawClock(ticks = 0) {
@@ -426,7 +426,7 @@ function renderStats(stats) {
     document.getElementById("scoreKills").textContent = stats.direct_kills
     document.getElementById("scoreWins").textContent = stats.wins
     document.getElementById("scoreInfluence").textContent = (+stats.max_influence).toFixed(1)
-    document.getElementById("scoreAge").textContent = ((+stats.age)/100).toFixed(2)
+    document.getElementById("scoreAge").textContent = ""+((+stats.age)/100)
 }
 
 function showBaseActions(inFight) {
@@ -479,6 +479,10 @@ function logMessage(msg) {
     log.prepend(document.createElement("br"))
     log.prepend(msg)
 }
+function clearLog(){
+    document.getElementById("log").innerHTML=""
+}
+
 lengthFinder = document.getElementById("lengthFinder")
 function getNameLength(s) {
     lengthFinder.innerText = s

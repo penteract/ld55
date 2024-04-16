@@ -84,6 +84,10 @@ function requestInfo() {
         renderInvitations(resp.requests)
         renderSummons(resp.owed)
         renderDebts(resp.owes)
+        if(isInFight && !firstFight){
+            firstFight = true
+            logMessage(`Attack the enemy or call for allies. Asking for help means you may be summoned by others, just as accepting another's plea gives you power over them`)
+        }
         // renderPossibleRequests()
         renderStats(resp.stats)
         if (!globresp.dead) {
@@ -173,10 +177,13 @@ function isKnownDemonName(demonName) {
 }
 myName = undefined
 truename = undefined
-
+firstFight = undefined
 //Initialization
 requestNewName(txt => {
     [myName, truename] = txt.split("\n")
+    clearLog()
+    firstFight = undefined;
+    logMessage(`Welcome ${myName}. Look for a fight or accept a request`)
     requestInfo()
 })
 

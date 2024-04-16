@@ -10,7 +10,7 @@ import random
 STATIC_FILES = ["/index.html", "/", "/render.js", "/gameloop.js",
                 "/serverComms.js", "/style.css", "/summoningCircle.png"]
 
-TICK_TIME = 10
+TICK_TIME = 4
 
 
 class Handler(SimpleHTTPRequestHandler):
